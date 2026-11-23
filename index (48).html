@@ -1,0 +1,488 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Mornings">
+<meta name="theme-color" content="#050505">
+<title>Mornings</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#050505;--ink:#F3F3F0;--mute:#8C8C88;--line:#1C1C1B;--field:#0E0E0D;--fieldline:#262625;
+  --display:'Space Grotesk',system-ui,-apple-system,sans-serif;--text:'Inter',system-ui,-apple-system,sans-serif}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:var(--text);overscroll-behavior:none}
+body{padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid #FFFFFF;outline-offset:2px}
+#app{height:100%;max-width:520px;margin:0 auto;position:relative;overflow:hidden}
+.screen{height:100%;display:flex;flex-direction:column;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.pad{padding:28px 24px 24px}
+.date{font-size:13px;color:var(--mute);letter-spacing:.02em}
+.hello{font-family:var(--display);font-weight:500;font-size:44px;line-height:1;letter-spacing:-.04em;margin:14px 0 0}
+.bands{flex:1;display:flex;flex-direction:column;gap:10px;margin-top:30px;min-height:360px}
+.band{flex:1;border:none;border-radius:26px;padding:0 24px;display:flex;align-items:center;justify-content:space-between;text-align:left}
+.band-name{font-family:var(--display);font-size:32px;font-weight:500;letter-spacing:-.03em}
+.dots{display:flex;gap:6px}.dot{width:10px;height:10px;border-radius:5px}
+.btn{height:56px;border:none;border-radius:28px;font-weight:700;font-size:16px}
+.btn-light{background:var(--ink);color:#050505}
+.btn-ghost{background:transparent;border:1px solid var(--fieldline);color:var(--ink);font-weight:600}
+.row-links{display:flex;justify-content:space-between;margin-top:14px}
+.link{background:none;border:none;color:var(--mute);font-size:14px;font-weight:600;padding:10px 4px}
+.field{width:100%;border:1px solid var(--fieldline);border-radius:18px;background:var(--field);padding:14px 16px;font-size:16px;line-height:1.45;color:var(--ink)}
+textarea.field{resize:none;min-height:110px}
+.label{font-size:13px;color:var(--mute);margin:22px 0 8px}
+/* card */
+.card-wrap{height:100%;padding:12px;touch-action:pan-y}
+.card{height:100%;border-radius:34px;padding:18px 22px 14px;display:flex;flex-direction:column;position:relative;overflow-y:auto}
+.bars{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.bars button{height:20px;border:none;background:none;padding:8px 0}
+.bars span{display:block;height:3px;border-radius:2px}
+.card-top{display:flex;justify-content:space-between;align-items:center;margin-top:6px}
+.icon-btn{width:40px;height:40px;border:none;border-radius:20px;background:transparent;display:flex;align-items:center;justify-content:center}
+.card-name{font-family:var(--display);font-size:60px;font-weight:500;letter-spacing:-.05em;line-height:.92;margin:14px 0 0}
+.asp{margin:14px 0 0;font-size:17px;line-height:1.45}
+.prompt{margin-top:22px;padding:18px;border-radius:24px;display:flex;flex-direction:column;gap:12px}
+.prompt-q{font-family:var(--display);font-size:23px;font-weight:500;line-height:1.2;letter-spacing:-.01em}
+.prompt-row{display:flex;justify-content:space-between;align-items:center}
+.small{font-size:13px}
+.habits{margin-top:auto;display:flex;flex-direction:column;gap:10px;padding-top:18px}
+.habit{display:flex;justify-content:space-between;align-items:center;min-height:54px;padding:0 20px;border-radius:27px;font-size:15px;font-weight:600;text-align:left}
+.handle{display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 0 4px;border:none;background:none;font-size:12px;font-weight:600}
+.handle i{width:40px;height:5px;border-radius:3px;display:block}
+/* sheet */
+.scrim{position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:5}
+.sheet{position:absolute;left:12px;right:12px;bottom:0;top:22%;background:#F3F5F8;color:#0B1430;border-radius:30px 30px 0 0;z-index:6;display:flex;flex-direction:column;padding:10px 18px calc(16px + env(safe-area-inset-bottom))}
+.sheet .grab{align-self:center;width:44px;height:5px;border-radius:3px;background:#C9D2E8;border:none;padding:0;margin:2px 0 6px}
+.tabs{display:flex;gap:22px;padding:10px 4px 8px}
+.tab{border:none;background:none;padding:0 0 6px;font-size:14px;border-bottom:2px solid transparent;color:#5F6B88;font-weight:500}
+.tab[aria-selected="true"]{color:#0B1430;font-weight:700;border-bottom-color:#0B1430}
+.notes{flex:1;overflow-y:auto;margin:0 -4px;padding:0 4px}
+.note{display:flex;flex-direction:column;gap:4px;padding:13px 4px;border-top:1px solid #DCE2F0;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.note-k{font-size:11px;letter-spacing:.08em}
+.note-t{font-size:15px;line-height:1.45}
+.note.q .note-t{font-weight:600}
+.note.answered .note-t{text-decoration:line-through;opacity:.55}
+.empty{padding:24px 4px;color:#5F6B88;font-size:14px;line-height:1.5}
+.composer{display:flex;gap:8px;padding-top:10px}
+.composer input{flex:1;height:52px;border:none;border-radius:26px;background:#FFFFFF;padding:0 18px;font-size:16px;color:#0B1430}
+.send{width:52px;height:52px;border:none;border-radius:26px;display:flex;align-items:center;justify-content:center}
+.menu{margin:8px 0 4px;padding:12px;border-radius:18px;background:#FFFFFF;box-shadow:0 8px 24px rgba(11,20,48,.12);display:flex;flex-direction:column;gap:8px}
+.menu button{height:44px;border-radius:22px;border:1px solid #D5DCEC;background:#FFFFFF;color:#0B1430;font-weight:600;font-size:14px}
+.menu button.primary{border:none;color:#FFFFFF}
+/* done + review */
+.strip{display:flex;flex-direction:column;gap:4px;padding:16px 18px;border-radius:20px}
+.strip-b{font-size:12px}
+.strip-x{font-size:16px;line-height:1.35}
+.week-head,.week{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.week-head{font-size:11px;text-align:center}
+.week span{height:32px;border-radius:9px}
+.seg{display:flex;gap:2px;padding:3px;border-radius:16px}
+.seg button{height:28px;padding:0 10px;border:none;border-radius:14px;font-size:12px;font-weight:600;background:transparent}
+.toast{position:absolute;left:50%;bottom:calc(28px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#F3F3F0;color:#050505;padding:12px 18px;border-radius:22px;font-size:14px;font-weight:600;z-index:9;white-space:nowrap}
+.set-bucket{padding:18px;border-radius:24px;margin-top:12px}
+.set-bucket .field{background:rgba(0,0,0,.18);border-color:rgba(255,255,255,.18);color:inherit}
+.set-bucket .field::placeholder{color:currentColor;opacity:.55}
+@media (prefers-reduced-motion:no-preference){.sheet{animation:up .22s ease-out}@keyframes up{from{transform:translateY(40px);opacity:.6}to{transform:none;opacity:1}}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+'use strict';
+const KEY = 'mornings.v1';
+const BUCKETS = [
+  { id: 'family', name: 'Family', short: 'Family', bg: '#8C1A2C', tint: '#F7B9C3', ink: '#FFFFFF' },
+  { id: 'career', name: 'Career', short: 'Career', bg: '#1C46B8', tint: '#B9CBFF', ink: '#FFFFFF' },
+  { id: 'financial', name: 'Financial / Lifestyle', short: 'Financial', bg: '#0F6B47', tint: '#A9E8CB', ink: '#FFFFFF' },
+  { id: 'health', name: 'Health', short: 'Health', bg: '#C9820C', tint: '#4A3000', ink: '#1F1400' }
+];
+const PROMPTS = {
+  family: ['What’s one conversation you’ve been putting off?', 'When did you last feel fully present at home?', 'What would the people closest to you say they need from you right now?', 'What tradition do you want your family to remember?', 'Where are you giving your family your leftovers instead of your best?', 'What’s one small way to show up for someone today?', 'What do you want this season of family life to feel like?'],
+  career: ['What would you stop doing if you had to cut 20% of your week?', 'What’s the one thing that would make everything else easier?', 'What are you avoiding that you know matters?', 'Who do you need to be learning from this year?', 'What would you attempt if you knew it would work?', 'Where are you busy but not moving forward?', 'What does a great week of work look like for you?'],
+  financial: ['What does “enough” actually look like?', 'What are you spending on that doesn’t reflect what you value?', 'What would financial freedom let you do that you can’t now?', 'What’s one money decision you’ve been delaying?', 'Where could a small habit compound over five years?', 'What lifestyle do you want, and what does it really cost?', 'Who do you want to be generous toward?'],
+  health: ['Do your current routines match the body you want at 60?', 'What gives you energy, and what drains it?', 'What’s the real reason you skip workouts?', 'How is your sleep shaping your days?', 'What would you eat if you were training for something?', 'What’s one health habit you’d keep for the rest of your life?', 'How do you want to feel when you wake up?']
+};
+const ICON = {
+  close: '<svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3l10 10M13 3L3 13"/></svg>',
+  back: '<svg aria-hidden="true" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M11 4L6 9l5 5"/></svg>',
+  next: '<svg aria-hidden="true" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M7 4l5 5-5 5"/></svg>',
+  up: '<svg aria-hidden="true" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 14V4M4.5 8.5L9 4l4.5 4.5"/></svg>'
+};
+
+/* ---------- state ---------- */
+function blank() {
+  const b = {};
+  BUCKETS.forEach(x => { b[x.id] = { aspiration: '', habits: [] }; });
+  return { v: 1, name: 'Mitch', setupDone: false, buckets: b, notes: [], checks: {}, mornings: {}, decisions: {} };
+}
+let S = load();
+const ui = { view: S.setupDone ? 'home' : 'setup', step: 0, card: 0, sheet: null, tab: 'all', menu: null, review: 0, shift: {}, sessionStart: null, toast: '' };
+function load() {
+  try { const raw = localStorage.getItem(KEY); if (raw) { const s = JSON.parse(raw); return Object.assign(blank(), s); } } catch (e) {}
+  return blank();
+}
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { toast('Couldn’t save. Storage may be full.'); } }
+const uid = () => Math.random().toString(36).slice(2, 9) + Date.now().toString(36).slice(-4);
+function dayKey(d) { d = d || new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+const today = () => dayKey();
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+function bucketById(id) { return BUCKETS.find(b => b.id === id); }
+function soft(b, a) { return b.ink === '#FFFFFF' ? 'rgba(255,255,255,' + a + ')' : 'rgba(31,20,0,' + a + ')'; }
+function isDone(habitId, key) { return !!(S.checks[key || today()] || {})[habitId]; }
+function niceDate(key) {
+  const t = today(); if (key === t) return 'Today';
+  const y = new Date(); y.setDate(y.getDate() - 1); if (key === dayKey(y)) return 'Yesterday';
+  const d = new Date(key + 'T00:00:00'); return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+function weekDays() {
+  const d = new Date(); const dow = (d.getDay() + 6) % 7; d.setDate(d.getDate() - dow);
+  return Array.from({ length: 7 }, (_, i) => { const x = new Date(d); x.setDate(d.getDate() + i); return dayKey(x); });
+}
+function toast(msg) { ui.toast = msg; render(); clearTimeout(toast.t); toast.t = setTimeout(() => { ui.toast = ''; render(); }, 2200); }
+
+/* ---------- prompts ---------- */
+function promptFor(b) {
+  const doy = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 864e5);
+  const shift = ui.shift[b.id] || 0;
+  const open = S.notes.filter(n => n.bucket === b.id && n.type === 'question' && !n.answered).sort((x, y) => x.date.localeCompare(y.date));
+  const useOwn = open.length && (doy + shift) % 2 === 0;
+  if (useOwn) { const q = open[(Math.floor((doy + shift) / 2)) % open.length]; return { text: q.text, own: true }; }
+  const list = PROMPTS[b.id]; return { text: list[(doy + shift + BUCKETS.indexOf(b)) % list.length], own: false };
+}
+
+/* ---------- views ---------- */
+function render() {
+  const app = document.getElementById('app');
+  let html = '';
+  if (ui.view === 'setup') html = vSetup();
+  else if (ui.view === 'home') html = vHome();
+  else if (ui.view === 'card') html = vCard();
+  else if (ui.view === 'done') html = vDone();
+  else if (ui.view === 'review') html = vReview();
+  else if (ui.view === 'settings') html = vSettings();
+  if (ui.sheet) html += vSheet();
+  if (ui.toast) html += '<div class="toast" role="status">' + esc(ui.toast) + '</div>';
+  app.innerHTML = html;
+  const f = app.querySelector('[data-autofocus]'); if (f && !f.value) f.focus({ preventScroll: true });
+}
+
+function vSetup() {
+  if (ui.step === 0) {
+    return '<main class="screen pad"><span class="date">Welcome</span>' +
+      '<h1 class="hello">Your mornings, in four parts.</h1>' +
+      '<p style="margin:18px 0 0;font-size:16px;line-height:1.5;color:#A3A39F">Family, career, financial and lifestyle, and health. You’ll add an aspiration and up to two habits for each. It takes about five minutes, and you can change everything later.</p>' +
+      '<label class="label" for="nm">What should we call you?</label><input id="nm" class="field" value="' + esc(S.name) + '" autocomplete="given-name">' +
+      '<div style="margin-top:auto;padding-top:24px"><button class="btn btn-light" style="width:100%" data-act="setup-next">Start</button></div></main>';
+  }
+  const b = BUCKETS[ui.step - 1], d = S.buckets[b.id];
+  const hv = (i) => esc(d.habits[i] ? d.habits[i].name : '');
+  return '<main class="screen" style="padding:12px"><div class="card" style="background:' + b.bg + ';color:' + b.ink + ';height:auto;min-height:100%">' +
+    '<div class="bars">' + BUCKETS.map((x, i) => '<span style="display:block;height:3px;border-radius:2px;background:' + (i < ui.step ? b.ink : soft(b, .25)) + '"></span>').join('') + '</div>' +
+    '<div class="card-top"><button class="icon-btn" style="color:' + b.ink + '" aria-label="Back" data-act="setup-back">' + ICON.back + '</button><span class="small" style="color:' + b.tint + '">' + ui.step + ' of 4</span></div>' +
+    '<h1 class="card-name" style="font-size:48px">' + esc(b.name) + '</h1>' +
+    '<label class="label" for="asp" style="color:' + b.tint + '">Your aspiration, in your words</label>' +
+    '<textarea id="asp" class="field" style="background:rgba(0,0,0,.18);border-color:' + soft(b, .2) + ';color:' + b.ink + '" placeholder="Paste it from your notes" data-autofocus>' + esc(d.aspiration) + '</textarea>' +
+    '<label class="label" for="h0" style="color:' + b.tint + '">Habits that support it (up to two)</label>' +
+    '<input id="h0" class="field" style="background:rgba(0,0,0,.18);border-color:' + soft(b, .2) + ';color:' + b.ink + '" placeholder="e.g. Phone away at dinner" value="' + hv(0) + '">' +
+    '<input id="h1" class="field" style="margin-top:8px;background:rgba(0,0,0,.18);border-color:' + soft(b, .2) + ';color:' + b.ink + '" placeholder="Optional" value="' + hv(1) + '">' +
+    '<div style="margin-top:auto;padding-top:24px"><button class="btn" style="width:100%;background:' + b.ink + ';color:' + b.bg + '" data-act="setup-next">' + (ui.step === 4 ? 'Finish' : 'Next') + '</button></div>' +
+    '</div></main>';
+}
+
+function vHome() {
+  const d = new Date();
+  const dateStr = d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+  const isSunday = d.getDay() === 0;
+  return '<main class="screen pad"><span class="date">' + esc(dateStr) + '</span>' +
+    '<h1 class="hello">Good morning, ' + esc(S.name || 'there') + '.</h1>' +
+    '<nav class="bands" aria-label="Your four buckets">' + BUCKETS.map((b, i) => {
+      const hs = S.buckets[b.id].habits;
+      const dots = hs.map(h => '<span class="dot" style="background:' + (isDone(h.id) ? b.ink : soft(b, .3)) + '"></span>').join('');
+      return '<button class="band" style="background:' + b.bg + ';color:' + b.ink + '" data-act="open-card" data-i="' + i + '"><span class="band-name">' + esc(b.short) + '</span><span class="dots" aria-label="' + hs.filter(h => isDone(h.id)).length + ' of ' + hs.length + ' habits done today">' + dots + '</span></button>';
+    }).join('') + '</nav>' +
+    '<button class="btn btn-light" style="margin-top:18px" data-act="begin">Begin</button>' +
+    '<div class="row-links"><button class="link" data-act="review"' + (isSunday ? ' style="color:#F3F3F0"' : '') + '>' + (isSunday ? 'Sunday review' : 'Weekly review') + '</button><button class="link" data-act="settings">Settings</button></div>' +
+    '</main>';
+}
+
+function vCard() {
+  const b = BUCKETS[ui.card], d = S.buckets[b.id], p = promptFor(b);
+  const notes = S.notes.filter(n => n.bucket === b.id);
+  const nq = notes.filter(n => n.type === 'question' && !n.answered).length, nt = notes.filter(n => n.type === 'thought').length;
+  const sum = notes.length ? nt + ' thought' + (nt === 1 ? '' : 's') + ' · ' + nq + ' open question' + (nq === 1 ? '' : 's') : 'Swipe up to write';
+  return '<div class="card-wrap" data-swipe="card"><article class="card" style="background:' + b.bg + ';color:' + b.ink + '" aria-label="' + esc(b.name) + '">' +
+    '<div class="bars" role="tablist" aria-label="Buckets">' + BUCKETS.map((x, i) => '<button role="tab" aria-selected="' + (i === ui.card) + '" aria-label="' + esc(x.name) + '" data-act="goto" data-i="' + i + '"><span style="background:' + (i <= ui.card ? b.ink : soft(b, .25)) + '"></span></button>').join('') + '</div>' +
+    '<div class="card-top"><button class="icon-btn" style="color:' + b.ink + ';margin-left:-10px" aria-label="Back to morning" data-act="home">' + ICON.close + '</button>' +
+    '<button class="icon-btn" style="color:' + b.ink + ';margin-right:-10px" aria-label="' + (ui.card === 3 ? 'Finish' : 'Next bucket') + '" data-act="next">' + ICON.next + '</button></div>' +
+    '<h1 class="card-name">' + esc(b.short) + '</h1>' +
+    (d.aspiration ? '<p class="asp" style="color:' + soft(b, .85) + '">' + esc(d.aspiration) + '</p>' : '<button class="link" style="color:' + b.tint + ';text-align:left;padding-left:0" data-act="settings">Add your aspiration</button>') +
+    '<section class="prompt" style="background:' + b.ink + ';color:' + b.bg + '" aria-label="Today’s prompt">' +
+      '<div class="prompt-row"><span class="small" style="font-weight:600">' + (p.own ? 'Your question' : 'Today’s prompt') + '</span><button class="link" style="color:' + b.bg + ';padding:6px 0" data-act="another">Another</button></div>' +
+      '<span class="prompt-q">' + esc(p.text) + '</span>' +
+      '<button class="btn" style="align-self:flex-start;height:44px;padding:0 18px;font-size:14px;background:' + b.bg + ';color:' + b.ink + '" data-act="answer">Answer it</button>' +
+    '</section>' +
+    '<div class="habits">' + d.habits.map(h => {
+      const on = isDone(h.id);
+      return '<button class="habit" aria-pressed="' + on + '" data-act="check" data-h="' + h.id + '" style="background:' + (on ? b.ink : 'transparent') + ';color:' + (on ? b.bg : b.ink) + ';border:1px solid ' + (on ? b.ink : soft(b, .35)) + '"><span>' + esc(h.name) + '</span><span aria-hidden="true">' + (on ? '✓' : '') + '</span></button>';
+    }).join('') +
+    '<button class="handle" style="color:' + b.tint + '" data-act="sheet"><i style="background:' + soft(b, .45) + '"></i>' + esc(sum) + '</button></div>' +
+    '</article></div>';
+}
+
+function vSheet() {
+  const b = bucketById(ui.sheet);
+  let list = S.notes.filter(n => n.bucket === b.id).sort((x, y) => y.ts - x.ts);
+  if (ui.tab === 'thoughts') list = list.filter(n => n.type === 'thought');
+  if (ui.tab === 'questions') list = list.filter(n => n.type === 'question');
+  const accent = b.id === 'health' ? '#8A5A06' : b.bg;
+  const items = list.map(n => {
+    const q = n.type === 'question';
+    let html = '<div class="note' + (q ? ' q' : '') + (n.answered ? ' answered' : '') + '" data-note="' + n.id + '" tabindex="0" role="button" aria-label="' + esc(n.text) + '. Press and hold for options">' +
+      '<span class="note-k" style="color:' + (q ? accent : '#5F6B88') + '">' + (q ? (n.answered ? 'Answered question' : 'Question') : 'Thought') + ' · ' + esc(niceDate(n.date)) + '</span><span class="note-t">' + esc(n.text) + '</span>' + (n.prompt ? '<span class="small" style="color:#5F6B88">On: ' + esc(n.prompt) + '</span>' : '') + '</div>';
+    if (ui.menu === n.id) {
+      const hasRoom = S.buckets[b.id].habits.length < 3;
+      html += '<div class="menu">' +
+        (q ? '' : '<button class="primary" style="background:' + accent + '" data-act="make-habit" data-n="' + n.id + '">' + (hasRoom ? 'Make this a ' + esc(b.short) + ' habit' : 'Habits full (3). Edit in Settings') + '</button>') +
+        (q ? '<button class="primary" style="background:' + accent + '" data-act="toggle-answered" data-n="' + n.id + '">' + (n.answered ? 'Reopen question' : 'Mark answered') + '</button>' : '') +
+        '<button data-act="flip-type" data-n="' + n.id + '">' + (q ? 'Turn into a thought' : 'Turn into a question') + '</button>' +
+        '<button data-act="del-note" data-n="' + n.id + '" style="color:#B3243C">Delete</button></div>';
+    }
+    return html;
+  }).join('');
+  const empty = ui.tab === 'questions' ? 'No questions yet. End a note with ? to save it as one.' : 'Nothing here yet. Write what you’re thinking. End with ? to save a question.';
+  return '<div class="scrim" data-act="close-sheet"></div><section class="sheet" role="dialog" aria-label="' + esc(b.name) + ' notes">' +
+    '<button class="grab" aria-label="Close notes" data-act="close-sheet"></button>' +
+    '<div style="display:flex;justify-content:space-between;align-items:baseline;padding:0 4px"><span style="font-family:var(--display);font-size:24px;font-weight:500;letter-spacing:-.02em">' + esc(b.short) + '</span><span class="small" style="color:#5F6B88">Press and hold a note for options</span></div>' +
+    '<div class="tabs" role="tablist">' + [['all', 'All'], ['thoughts', 'Thoughts'], ['questions', 'Questions']].map(t => '<button class="tab" role="tab" aria-selected="' + (ui.tab === t[0]) + '" data-act="tab" data-t="' + t[0] + '">' + t[1] + '</button>').join('') + '</div>' +
+    '<div class="notes">' + (items || '<div class="empty">' + empty + '</div>') + '</div>' +
+    (ui.answering ? '<p class="small" style="margin:8px 4px 0;color:#5F6B88">Answering: <span style="color:#0B1430">' + esc(ui.answering) + '</span></p>' : '') +
+    '<form class="composer" data-form="note"><label for="nt" style="position:absolute;left:-9999px">New thought or question</label><input id="nt" name="t" autocomplete="off" placeholder="A thought, or end with ? for a question" value="' + esc(ui.draft || '') + '"><button class="send" style="background:' + accent + ';color:#FFFFFF" aria-label="Save note">' + ICON.up + '</button></form>' +
+    '</section>';
+}
+
+function vDone() {
+  const mins = ui.sessionStart ? Math.max(1, Math.round((Date.now() - ui.sessionStart) / 60000)) : null;
+  const count = Object.keys(S.mornings).length;
+  const t = today();
+  const rows = BUCKETS.map(b => {
+    const hs = S.buckets[b.id].habits;
+    const wrote = S.notes.filter(n => n.bucket === b.id && n.date === t).sort((x, y) => x.ts - y.ts)[0];
+    const parts = [];
+    if (hs.length) parts.push(hs.map(h => (isDone(h.id) ? '✓ ' : '') + h.name).join(' · '));
+    if (wrote) parts.push('Wrote: ' + wrote.text);
+    if (!parts.length) parts.push('Nothing set yet');
+    return '<div class="strip" style="background:' + b.bg + ';color:' + b.ink + '"><span class="strip-b" style="color:' + b.tint + '">' + esc(b.short) + '</span><span class="strip-x">' + esc(parts.join('  ·  ')) + '</span></div>';
+  }).join('');
+  return '<main class="screen pad"><span class="date">Morning ' + count + (mins ? ' · ' + mins + ' minute' + (mins === 1 ? '' : 's') : '') + '</span>' +
+    '<h1 class="hello">You’re set.</h1>' +
+    '<p style="margin:16px 0 0;font-size:15px;color:#A3A39F">Today I’m committed to</p>' +
+    '<section style="margin-top:14px;display:flex;flex-direction:column;gap:8px">' + rows + '</section>' +
+    '<button class="btn btn-light" style="margin-top:auto" data-act="home">Start the day</button>' +
+    '<div style="height:8px"></div></main>';
+}
+
+function vReview() {
+  const b = BUCKETS[ui.review], d = S.buckets[b.id], days = weekDays();
+  const since = days[0];
+  const wrote = S.notes.filter(n => n.bucket === b.id && n.type === 'thought' && n.date >= since).sort((x, y) => y.ts - x.ts).slice(0, 3);
+  const open = S.notes.filter(n => n.bucket === b.id && n.type === 'question' && !n.answered).slice(0, 2);
+  const line = soft(b, .18), off = soft(b, .14);
+  const dec = S.decisions[since] || {};
+  return '<main class="screen" style="padding:12px"><article class="card" style="background:' + b.bg + ';color:' + b.ink + ';height:auto;min-height:100%;gap:16px">' +
+    '<div class="card-top" style="margin-top:0"><button class="icon-btn" style="color:' + b.ink + ';margin-left:-10px" aria-label="Close review" data-act="home">' + ICON.close + '</button><span class="small" style="color:' + b.tint + '">Weekly review · ' + (ui.review + 1) + ' of 4</span></div>' +
+    '<h1 class="card-name" style="margin:0;font-size:52px">' + esc(b.short) + '</h1>' +
+    '<section><p class="small" style="color:' + b.tint + ';margin:0 0 4px">What you wrote this week</p>' +
+      (wrote.length ? wrote.map(n => '<p style="margin:0;padding:10px 0;border-top:1px solid ' + line + ';font-size:14px;line-height:1.45">' + esc(n.text) + '</p>').join('') : '<p style="margin:0;padding:10px 0;border-top:1px solid ' + line + ';font-size:14px;opacity:.7">No thoughts this week.</p>') +
+    '</section>' +
+    open.map(q => '<section style="padding:16px;border-radius:20px;background:' + soft(b, .1) + ';display:flex;flex-direction:column;gap:12px"><span style="font-size:16px;line-height:1.4">' + esc(q.text) + '</span>' +
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="btn" style="height:44px;font-size:13px;background:transparent;border:1px solid ' + soft(b, .35) + ';color:' + b.ink + ';font-weight:600" data-act="still" data-n="' + q.id + '">Still thinking</button><button class="btn" style="height:44px;font-size:13px;background:' + b.ink + ';color:' + b.bg + '" data-act="toggle-answered" data-n="' + q.id + '">I’ve answered it</button></div></section>').join('') +
+    '<section style="display:flex;flex-direction:column;gap:14px"><p class="small" style="color:' + b.tint + ';margin:0">Your week</p>' +
+      '<div class="week-head" aria-hidden="true" style="color:' + soft(b, .7) + '"><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span></div>' +
+      (d.habits.length ? d.habits.map(h => {
+        const keep = dec[h.id] !== 'change';
+        return '<div style="display:flex;flex-direction:column;gap:8px"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><span style="font-size:15px">' + esc(h.name) + '</span>' +
+          '<span class="seg" role="radiogroup" aria-label="' + esc(h.name) + '" style="background:' + soft(b, .1) + '"><button role="radio" aria-checked="' + keep + '" data-act="keep" data-h="' + h.id + '" style="background:' + (keep ? b.ink : 'transparent') + ';color:' + (keep ? b.bg : b.ink) + '">Keep</button><button role="radio" aria-checked="' + !keep + '" data-act="change" data-h="' + h.id + '" style="background:' + (!keep ? b.ink : 'transparent') + ';color:' + (!keep ? b.bg : b.ink) + '">Change</button></span></div>' +
+          '<div class="week" aria-label="' + esc(h.name) + ' this week">' + days.map(k => '<span title="' + k + '" style="background:' + (isDone(h.id, k) ? b.ink : off) + '"></span>').join('') + '</div></div>';
+      }).join('') : '<p style="margin:0;font-size:14px;opacity:.7">No habits set for this bucket.</p>') +
+    '</section>' +
+    '<div style="margin-top:auto;display:grid;grid-template-columns:' + (ui.review ? '1fr 2fr' : '1fr') + ';gap:8px">' +
+      (ui.review ? '<button class="btn" style="background:transparent;border:1px solid ' + soft(b, .35) + ';color:' + b.ink + ';font-weight:600" data-act="review-back">Back</button>' : '') +
+      '<button class="btn" style="background:' + b.ink + ';color:' + b.bg + '" data-act="review-next">' + (ui.review === 3 ? 'Finish review' : 'Next: ' + esc(BUCKETS[ui.review + 1].short)) + '</button></div>' +
+    '</article></main>';
+}
+
+function vSettings() {
+  return '<main class="screen pad"><div style="display:flex;align-items:center;gap:6px"><button class="icon-btn" style="margin-left:-10px;color:#F3F3F0" aria-label="Back" data-act="home">' + ICON.back + '</button><h1 style="margin:0;font-family:var(--display);font-weight:500;font-size:30px;letter-spacing:-.03em">Settings</h1></div>' +
+    '<label class="label" for="s-name">Your name</label><input id="s-name" class="field" value="' + esc(S.name) + '">' +
+    BUCKETS.map(b => {
+      const d = S.buckets[b.id];
+      return '<section class="set-bucket" style="background:' + b.bg + ';color:' + b.ink + '"><h2 style="margin:0 0 10px;font-family:var(--display);font-weight:500;font-size:24px">' + esc(b.name) + '</h2>' +
+        '<label class="small" for="a-' + b.id + '" style="display:block;margin-bottom:6px;color:' + b.tint + '">Aspiration</label><textarea id="a-' + b.id + '" class="field" style="min-height:90px">' + esc(d.aspiration) + '</textarea>' +
+        '<label class="small" for="h-' + b.id + '-0" style="display:block;margin:12px 0 6px;color:' + b.tint + '">Habits (up to three)</label>' +
+        [0, 1, 2].map(i => '<input id="h-' + b.id + '-' + i + '" class="field" style="margin-top:' + (i ? 8 : 0) + 'px" placeholder="' + (i ? 'Optional' : 'A habit') + '" value="' + esc(d.habits[i] ? d.habits[i].name : '') + '">').join('') +
+        '</section>';
+    }).join('') +
+    '<button class="btn btn-light" style="width:100%;margin-top:18px" data-act="save-settings">Save changes</button>' +
+    '<p class="label" style="margin-top:30px">Your notes live only on this phone. Export a backup now and then.</p>' +
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="btn btn-ghost" data-act="export">Export backup</button><label class="btn btn-ghost" style="display:flex;align-items:center;justify-content:center;cursor:pointer">Import backup<input type="file" accept="application/json,.json" data-act="import" style="display:none"></label></div>' +
+    '<button class="link" style="margin-top:20px;color:#E5707E" data-act="reset">Erase everything</button>' +
+    '</main>';
+}
+
+/* ---------- actions ---------- */
+function readSetupStep() {
+  if (ui.step === 0) { const v = document.getElementById('nm').value.trim(); S.name = v || 'Mitch'; return; }
+  const b = BUCKETS[ui.step - 1], d = S.buckets[b.id];
+  d.aspiration = document.getElementById('asp').value.trim();
+  const names = [document.getElementById('h0').value.trim(), document.getElementById('h1').value.trim()].filter(Boolean);
+  d.habits = names.map((n, i) => (d.habits[i] && d.habits[i].name === n) ? d.habits[i] : { id: uid(), name: n });
+}
+function startSession() { if (!ui.sessionStart) ui.sessionStart = Date.now(); }
+function finishMorning() { S.mornings[today()] = { ts: Date.now() }; save(); ui.view = 'done'; }
+
+function act(name, el) {
+  switch (name) {
+    case 'setup-next': readSetupStep(); save(); if (ui.step === 4) { S.setupDone = true; save(); ui.view = 'home'; } else ui.step++; break;
+    case 'setup-back': readSetupStep(); ui.step = Math.max(0, ui.step - 1); break;
+    case 'begin': startSession(); ui.card = 0; ui.view = 'card'; break;
+    case 'open-card': startSession(); ui.card = +el.dataset.i; ui.view = 'card'; break;
+    case 'goto': ui.card = +el.dataset.i; break;
+    case 'next': if (ui.card < 3) ui.card++; else finishMorning(); break;
+    case 'prev': if (ui.card > 0) ui.card--; break;
+    case 'home': ui.view = 'home'; ui.sheet = null; ui.sessionStart = null; break;
+    case 'another': { const id = BUCKETS[ui.card].id; ui.shift[id] = (ui.shift[id] || 0) + 1; break; }
+    case 'answer': { const b = BUCKETS[ui.card]; ui.sheet = b.id; ui.tab = 'all'; ui.menu = null; ui.answering = promptFor(b).text; ui.draft = ''; break; }
+    case 'check': { const k = today(); S.checks[k] = S.checks[k] || {}; const h = el.dataset.h; if (S.checks[k][h]) delete S.checks[k][h]; else S.checks[k][h] = true; save(); break; }
+    case 'sheet': ui.sheet = BUCKETS[ui.card].id; ui.tab = 'all'; ui.menu = null; ui.answering = null; ui.draft = ''; break;
+    case 'close-sheet': ui.sheet = null; ui.menu = null; ui.answering = null; break;
+    case 'tab': ui.tab = el.dataset.t; ui.menu = null; break;
+    case 'make-habit': {
+      const n = S.notes.find(x => x.id === el.dataset.n), d = S.buckets[n.bucket];
+      if (d.habits.length >= 3) { toast('This bucket already has three habits'); return; }
+      const name = n.text.length > 60 ? n.text.slice(0, 57) + '…' : n.text;
+      d.habits.push({ id: uid(), name }); ui.menu = null; save(); toast('Added as a ' + bucketById(n.bucket).short + ' habit'); return;
+    }
+    case 'toggle-answered': { const n = S.notes.find(x => x.id === el.dataset.n); n.answered = !n.answered; ui.menu = null; save(); if (ui.view === 'review') toast(n.answered ? 'Marked answered' : 'Reopened'); break; }
+    case 'still': toast('Still open. It’ll come back as a prompt.'); return;
+    case 'flip-type': { const n = S.notes.find(x => x.id === el.dataset.n); n.type = n.type === 'question' ? 'thought' : 'question'; n.answered = false; ui.menu = null; save(); break; }
+    case 'del-note': S.notes = S.notes.filter(x => x.id !== el.dataset.n); ui.menu = null; save(); break;
+    case 'review': ui.review = 0; ui.view = 'review'; break;
+    case 'review-next': if (ui.review < 3) ui.review++; else { ui.view = 'home'; toast('Review done. See you next week.'); return; } break;
+    case 'review-back': ui.review = Math.max(0, ui.review - 1); break;
+    case 'keep': case 'change': {
+      const wk = weekDays()[0]; S.decisions[wk] = S.decisions[wk] || {}; S.decisions[wk][el.dataset.h] = name; save();
+      if (name === 'change') {
+        const b = BUCKETS[ui.review], d = S.buckets[b.id], h = d.habits.find(x => x.id === el.dataset.h);
+        const v = prompt('Change this habit to… (leave empty to remove it)', h.name);
+        if (v !== null) { const t = v.trim(); if (t) h.name = t; else d.habits = d.habits.filter(x => x.id !== h.id); save(); }
+      }
+      break;
+    }
+    case 'settings': ui.view = 'settings'; ui.sheet = null; break;
+    case 'save-settings': {
+      S.name = document.getElementById('s-name').value.trim() || 'Mitch';
+      BUCKETS.forEach(b => {
+        const d = S.buckets[b.id];
+        d.aspiration = document.getElementById('a-' + b.id).value.trim();
+        const names = [0, 1, 2].map(i => document.getElementById('h-' + b.id + '-' + i).value.trim()).filter(Boolean);
+        d.habits = names.map((n, i) => (d.habits[i] && d.habits[i].name === n) ? d.habits[i] : { id: uid(), name: n });
+      });
+      save(); toast('Saved'); return;
+    }
+    case 'export': exportData(); return;
+    case 'reset': if (confirm('Erase all your aspirations, habits and notes from this phone? This can’t be undone. Export a backup first if you want one.')) { S = blank(); save(); ui.view = 'setup'; ui.step = 0; } break;
+  }
+  render();
+}
+
+function addNote(text) {
+  text = text.trim(); if (!text) return;
+  const type = /\?\s*$/.test(text) ? 'question' : 'thought';
+  S.notes.push({ id: uid(), bucket: ui.sheet, type, text, date: today(), ts: Date.now(), prompt: ui.answering || undefined });
+  ui.draft = ''; ui.answering = null; save(); render();
+  const i = document.getElementById('nt'); if (i) i.focus({ preventScroll: true });
+}
+
+async function exportData() {
+  const data = JSON.stringify(S, null, 2);
+  const name = 'mornings-backup-' + today() + '.json';
+  try {
+    const file = new File([data], name, { type: 'application/json' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: 'Mornings backup' }); return; }
+  } catch (e) { if (e && e.name === 'AbortError') return; }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([data], { type: 'application/json' })); a.download = name; document.body.appendChild(a); a.click(); a.remove();
+  toast('Backup downloaded');
+}
+function importData(file) {
+  const r = new FileReader();
+  r.onload = () => {
+    try {
+      const s = JSON.parse(r.result);
+      if (!s || !s.buckets || !Array.isArray(s.notes)) throw new Error('bad');
+      if (!confirm('Replace what’s on this phone with this backup?')) return;
+      S = Object.assign(blank(), s); save(); ui.view = 'home'; render(); toast('Backup restored');
+    } catch (e) { toast('That file isn’t a Mornings backup'); }
+  };
+  r.readAsText(file);
+}
+
+/* ---------- events ---------- */
+const app = document.getElementById('app');
+app.addEventListener('click', (e) => {
+  const el = e.target.closest('[data-act]');
+  if (!el || el.tagName === 'INPUT') return;
+  if (el.closest('.note') && !el.dataset.act) return;
+  act(el.dataset.act, el);
+});
+app.addEventListener('change', (e) => { if (e.target.matches('input[data-act="import"]') && e.target.files[0]) importData(e.target.files[0]); });
+app.addEventListener('submit', (e) => {
+  if (e.target.matches('[data-form="note"]')) { e.preventDefault(); addNote(e.target.elements.t.value); }
+});
+app.addEventListener('input', (e) => { if (e.target.id === 'nt') ui.draft = e.target.value; });
+
+// press and hold a note for options; Enter/Space does the same for keyboard users
+let holdTimer = null, holdStart = null;
+app.addEventListener('pointerdown', (e) => {
+  const n = e.target.closest('.note'); if (!n) return;
+  holdStart = { x: e.clientX, y: e.clientY };
+  holdTimer = setTimeout(() => { ui.menu = ui.menu === n.dataset.note ? null : n.dataset.note; if (navigator.vibrate) navigator.vibrate(10); render(); }, 420);
+});
+['pointerup', 'pointercancel', 'pointerleave'].forEach(t => app.addEventListener(t, () => { clearTimeout(holdTimer); }));
+app.addEventListener('pointermove', (e) => { if (holdStart && (Math.abs(e.clientX - holdStart.x) > 8 || Math.abs(e.clientY - holdStart.y) > 8)) clearTimeout(holdTimer); });
+app.addEventListener('keydown', (e) => {
+  const n = e.target.closest && e.target.closest('.note');
+  if (n && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); ui.menu = ui.menu === n.dataset.note ? null : n.dataset.note; render(); }
+  if (e.key === 'Escape' && ui.sheet) { ui.sheet = null; ui.menu = null; render(); }
+  if (ui.view === 'card' && !ui.sheet && !/INPUT|TEXTAREA/.test(document.activeElement.tagName)) {
+    if (e.key === 'ArrowRight') act('next'); if (e.key === 'ArrowLeft') act('prev'); if (e.key === 'ArrowUp') act('sheet');
+  }
+});
+
+// swipe between cards, swipe up for notes
+let sw = null;
+app.addEventListener('touchstart', (e) => {
+  if (ui.view !== 'card' || ui.sheet) return;
+  if (e.target.closest('button,input,textarea')) { sw = null; return; }
+  const t = e.touches[0]; sw = { x: t.clientX, y: t.clientY, at: Date.now() };
+}, { passive: true });
+app.addEventListener('touchend', (e) => {
+  if (!sw) return;
+  const t = e.changedTouches[0], dx = t.clientX - sw.x, dy = t.clientY - sw.y; sw = null;
+  if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)) act(dx < 0 ? 'next' : 'prev');
+  else if (dy < -70 && Math.abs(dy) > Math.abs(dx)) act('sheet');
+}, { passive: true });
+
+render();
+if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
+</script>
+</body>
+</html>

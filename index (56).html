@@ -1,0 +1,762 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Mornings">
+<meta name="theme-color" content="#050505">
+<title>Mornings</title>
+<link rel="manifest" href="manifest.webmanifest?v=4">
+<link rel="apple-touch-icon" sizes="180x180" href="moon-180.png?v=4">
+<link rel="icon" type="image/png" sizes="192x192" href="moon-192.png?v=4">
+<style>
+:root{--bg:#050505;--ink:#F3F3F0;--mute:#8C8C88;--line:#1C1C1B;--field:#0E0E0D;--fieldline:#262625;
+  --display:-apple-system,BlinkMacSystemFont,'SF Pro Display','Helvetica Neue',sans-serif;--text:-apple-system,BlinkMacSystemFont,'SF Pro Text','Helvetica Neue',sans-serif}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;min-height:100%;background:var(--bg);color:var(--ink);font-family:var(--text);overscroll-behavior:none}
+body{padding:0}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid #FFFFFF;outline-offset:2px}
+#app{position:fixed;top:0;bottom:0;left:0;right:0;max-width:520px;margin:0 auto;overflow:hidden}
+.screen{height:100%;box-sizing:border-box;background-origin:border-box!important;background-repeat:no-repeat!important;background-size:100% 100%!important;display:flex;flex-direction:column;overflow-y:auto;-webkit-overflow-scrolling:touch;border-top:env(safe-area-inset-top) solid transparent;border-bottom:env(safe-area-inset-bottom) solid transparent}
+.screen > *{flex-shrink:0}
+.pad{padding:28px 24px 24px}
+.date{font-size:13px;color:var(--mute);letter-spacing:.02em}
+.hello{font-family:var(--display);font-weight:500;font-size:44px;line-height:1;letter-spacing:-.04em;margin:14px 0 0}
+.bands{flex:1;display:flex;flex-direction:column;gap:10px;margin-top:30px;min-height:360px}
+.band{flex:1;border:none;border-radius:26px;padding:0 24px;display:flex;align-items:center;justify-content:space-between;text-align:left}
+.band-name{font-family:var(--display);font-size:32px;font-weight:500;letter-spacing:-.03em}
+.dots{display:flex;gap:6px}.dot{width:10px;height:10px;border-radius:5px}
+.btn{height:56px;border:none;border-radius:28px;font-weight:700;font-size:16px}
+.btn-light{background:var(--ink);color:#050505}
+.btn-ghost{background:transparent;border:1px solid var(--fieldline);color:var(--ink);font-weight:600}
+.row-links{display:flex;justify-content:space-between;margin-top:14px}
+.link{background:none;border:none;color:var(--mute);font-size:14px;font-weight:600;padding:10px 4px}
+.field{width:100%;border:1px solid var(--fieldline);border-radius:18px;background:var(--field);padding:14px 16px;font-size:16px;line-height:1.45;color:var(--ink)}
+textarea.field{resize:none;min-height:110px}
+.label{font-size:13px;color:var(--mute);margin:22px 0 8px}
+/* card */
+.card-wrap{height:100%;padding:12px;touch-action:pan-y}
+.card{height:100%;border-radius:34px;padding:18px 22px 14px;display:flex;flex-direction:column;position:relative;overflow-y:auto}
+.bars{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.bars button{height:20px;border:none;background:none;padding:8px 0}
+.bars span{display:block;height:3px;border-radius:2px}
+.card-top{display:flex;justify-content:space-between;align-items:center;margin-top:6px}
+.icon-btn{width:40px;height:40px;border:none;border-radius:20px;background:transparent;display:flex;align-items:center;justify-content:center}
+.card-name{font-family:var(--display);font-size:60px;font-weight:500;letter-spacing:-.05em;line-height:.92;margin:14px 0 0}
+.asp{margin:14px 0 0;font-size:17px;line-height:1.45}
+.prompt{margin-top:22px;padding:18px;border-radius:24px;display:flex;flex-direction:column;gap:12px}
+.prompt-q{font-family:var(--display);font-size:23px;font-weight:500;line-height:1.2;letter-spacing:-.01em}
+.prompt-row{display:flex;justify-content:space-between;align-items:center}
+.small{font-size:13px}
+.habits{margin-top:auto;display:flex;flex-direction:column;gap:10px;padding-top:18px}
+.habit{display:flex;justify-content:space-between;align-items:center;min-height:54px;padding:0 20px;border-radius:27px;font-size:15px;font-weight:600;text-align:left}
+.handle{display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 0 4px;border:none;background:none;font-size:12px;font-weight:600}
+.handle i{width:40px;height:5px;border-radius:3px;display:block}
+/* weather */
+.sky{min-height:100%;display:flex;flex-direction:column;color:#FFFFFF}
+.glass{background:rgba(255,255,255,.14);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border:.5px solid rgba(255,255,255,.22);border-radius:24px}
+.wx-greet{margin:6px 0 0;font-size:min(60px,12.5vw);font-weight:200;letter-spacing:-.03em;line-height:1.02;font-family:var(--display)}
+.wx-row{display:flex;align-items:center;gap:14px;min-height:68px;padding:0 18px;border:none;background:none;color:#FFFFFF;width:100%;text-align:left;font:inherit}
+.wx-row + .wx-row{border-top:.5px solid rgba(255,255,255,.18)}
+.glow{width:12px;height:12px;border-radius:6px;flex:0 0 auto}
+.wx-btn{height:60px;border:none;border-radius:30px;background:rgba(255,255,255,.92);color:#13284D;font-size:18px;font-weight:600}
+.wx-cap{display:block;font-size:13px;font-weight:600;opacity:.72;letter-spacing:.02em}
+.breath{position:relative;width:250px;height:250px;display:flex;align-items:center;justify-content:center}
+.breath span{position:absolute;border-radius:50%;background:rgba(255,255,255,.12);transition-property:transform;transition-timing-function:ease-in-out}
+.breath .r1{inset:0}.breath .r2{inset:32px;background:rgba(255,255,255,.16)}.breath .r3{inset:66px;background:rgba(255,255,255,.3)}
+.breath.in span{transform:scale(1.18)}.breath.out span{transform:scale(.78)}
+@media (prefers-reduced-motion:reduce){.breath span{transition:none!important}}
+@keyframes pulse{0%,100%{transform:scale(.7);opacity:.5}50%{transform:scale(1.15);opacity:1}}
+.pulse{animation:pulse 1.6s ease-in-out infinite}
+@media (prefers-reduced-motion:reduce){.pulse{animation:none}}
+/* study */
+.study-text{font-family:var(--display);font-weight:300;letter-spacing:-.02em;line-height:1.15;margin:0;text-align:center}
+.bigcheck{width:96px;height:96px;border-radius:24px;background:transparent;display:flex;align-items:center;justify-content:center;transition:background .15s}
+.bucket-done{font-size:15px;font-weight:700}
+/* sheet */
+.scrim{position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:5}
+.sheet{position:absolute;left:12px;right:12px;bottom:var(--kb,0px);top:auto;height:min(78%,calc(100% - var(--kb,0px) - 40px));background:#F3F5F8;color:#0B1430;border-radius:30px 30px 0 0;z-index:6;display:flex;flex-direction:column;padding:10px 18px calc(16px + env(safe-area-inset-bottom))}
+.sheet .grab{align-self:center;width:44px;height:5px;border-radius:3px;background:#C9D2E8;border:none;padding:0;margin:2px 0 6px}
+.tabs{display:flex;gap:22px;padding:10px 4px 8px}
+.tab{border:none;background:none;padding:0 0 6px;font-size:14px;border-bottom:2px solid transparent;color:#5F6B88;font-weight:500}
+.tab[aria-selected="true"]{color:#0B1430;font-weight:700;border-bottom-color:#0B1430}
+.notes{flex:1;overflow-y:auto;margin:0 -4px;padding:0 4px}
+.note{display:flex;flex-direction:column;gap:4px;padding:13px 4px;border-top:1px solid #DCE2F0;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.note-k{font-size:11px;letter-spacing:.08em}
+.note-t{font-size:15px;line-height:1.45}
+.note.q .note-t{font-weight:600}
+.note.answered .note-t{text-decoration:line-through;opacity:.55}
+.empty{padding:24px 4px;color:#5F6B88;font-size:14px;line-height:1.5}
+.composer{display:flex;gap:8px;padding-top:10px}
+.composer input{flex:1;height:52px;border:none;border-radius:26px;background:#FFFFFF;padding:0 18px;font-size:16px;color:#0B1430}
+.send{width:52px;height:52px;border:none;border-radius:26px;display:flex;align-items:center;justify-content:center}
+.menu{margin:8px 0 4px;padding:12px;border-radius:18px;background:#FFFFFF;box-shadow:0 8px 24px rgba(11,20,48,.12);display:flex;flex-direction:column;gap:8px}
+.menu button{height:44px;border-radius:22px;border:1px solid #D5DCEC;background:#FFFFFF;color:#0B1430;font-weight:600;font-size:14px}
+.menu button.primary{border:none;color:#FFFFFF}
+/* done + review */
+.strip{display:flex;flex-direction:column;gap:4px;padding:16px 18px;border-radius:20px}
+.strip-b{font-size:12px}
+.strip-x{font-size:16px;line-height:1.35}
+.week-head,.week{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.week-head{font-size:11px;text-align:center}
+.week span{height:32px;border-radius:9px}
+.seg{display:flex;gap:2px;padding:3px;border-radius:16px}
+.seg button{height:28px;padding:0 10px;border:none;border-radius:14px;font-size:12px;font-weight:600;background:transparent}
+.toast{position:absolute;left:50%;bottom:calc(28px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#F3F3F0;color:#050505;padding:12px 18px;border-radius:22px;font-size:14px;font-weight:600;z-index:9;white-space:nowrap}
+.set-bucket{padding:18px;border-radius:24px;margin-top:12px}
+.set-bucket .field{background:rgba(0,0,0,.18);border-color:rgba(255,255,255,.18);color:inherit}
+.set-bucket .field::placeholder{color:currentColor;opacity:.55}
+@media (prefers-reduced-motion:no-preference){.sheet{animation:up .22s ease-out}@keyframes up{from{transform:translateY(40px);opacity:.6}to{transform:none;opacity:1}}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+'use strict';
+const KEY = 'mornings.v1';
+const BUCKETS = [
+  { id: 'family', name: 'Family', short: 'Family', bg: '#A62B3C', glow: '#FF5C67', grad: 'linear-gradient(180deg,#7A1E2C 0%,#C2374A 55%,#F08A6E 100%)', tint: 'rgba(255,255,255,.8)', ink: '#FFFFFF' },
+  { id: 'career', name: 'Career', short: 'Career', bg: '#2A55B8', glow: '#5B82FF', grad: 'linear-gradient(180deg,#0B1D4A 0%,#2A55B8 55%,#7FB2F0 100%)', tint: 'rgba(255,255,255,.8)', ink: '#FFFFFF' },
+  { id: 'financial', name: 'Financial / Lifestyle', short: 'Financial', bg: '#0E7C6B', glow: '#2ED3B7', grad: 'linear-gradient(180deg,#06302F 0%,#0E7C6B 55%,#6CCCA8 100%)', tint: 'rgba(255,255,255,.8)', ink: '#FFFFFF' },
+  { id: 'health', name: 'Health', short: 'Health', bg: '#B9500E', glow: '#FF8A3D', grad: 'linear-gradient(180deg,#4A1C07 0%,#B9500E 55%,#E08A2C 100%)', tint: 'rgba(255,255,255,.8)', ink: '#FFFFFF' }
+];
+const PROMPTS = {
+  family: ['What’s one conversation you’ve been putting off?', 'When did you last feel fully present at home?', 'What would the people closest to you say they need from you right now?', 'What tradition do you want your family to remember?', 'Where are you giving your family your leftovers instead of your best?', 'What’s one small way to show up for someone today?', 'What do you want this season of family life to feel like?'],
+  career: ['What would you stop doing if you had to cut 20% of your week?', 'What’s the one thing that would make everything else easier?', 'What are you avoiding that you know matters?', 'Who do you need to be learning from this year?', 'What would you attempt if you knew it would work?', 'Where are you busy but not moving forward?', 'What does a great week of work look like for you?'],
+  financial: ['What does “enough” actually look like?', 'What are you spending on that doesn’t reflect what you value?', 'What would financial freedom let you do that you can’t now?', 'What’s one money decision you’ve been delaying?', 'Where could a small habit compound over five years?', 'What lifestyle do you want, and what does it really cost?', 'Who do you want to be generous toward?'],
+  health: ['Do your current routines match the body you want at 60?', 'What gives you energy, and what drains it?', 'What’s the real reason you skip workouts?', 'How is your sleep shaping your days?', 'What would you eat if you were training for something?', 'What’s one health habit you’d keep for the rest of your life?', 'How do you want to feel when you wake up?']
+};
+const ICON = {
+  close: '<svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3l10 10M13 3L3 13"/></svg>',
+  back: '<svg aria-hidden="true" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M11 4L6 9l5 5"/></svg>',
+  next: '<svg aria-hidden="true" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M7 4l5 5-5 5"/></svg>',
+  up: '<svg aria-hidden="true" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 14V4M4.5 8.5L9 4l4.5 4.5"/></svg>'
+};
+
+/* ---------- state ---------- */
+function blank() {
+  const b = {};
+  BUCKETS.forEach(x => { b[x.id] = { aspiration: '', items: [], habits: [] }; });
+  return { v: 2, name: 'Mitch', setupDone: false, buckets: b, notes: [], checks: {}, reviewed: {}, mornings: {}, decisions: {} };
+}
+let S = load();
+const ui = { view: S.setupDone ? 'home' : 'setup', step: 0, queue: [], pos: 0, sheet: null, tab: 'all', menu: null, review: 0, sessionStart: null, toast: '', flash: null, shift: {} };
+function load() {
+  try {
+    const raw = localStorage.getItem(KEY);
+    if (raw) {
+      const s = Object.assign(blank(), JSON.parse(raw));
+      BUCKETS.forEach(x => {
+        const d = s.buckets[x.id] = Object.assign({ aspiration: '', items: [], habits: [] }, s.buckets[x.id] || {});
+        if (!d.items.length && d.aspiration) d.items = [{ id: uid(), text: d.aspiration }];
+      });
+      s.reviewed = s.reviewed || {};
+      return s;
+    }
+  } catch (e) {}
+  return blank();
+}
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { toast('Couldn’t save. Storage may be full.'); } }
+function uid() { return Math.random().toString(36).slice(2, 9) + Date.now().toString(36).slice(-4); }
+function dayKey(d) { d = d || new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+const today = () => dayKey();
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+function bucketById(id) { return BUCKETS.find(b => b.id === id); }
+function soft(b, a) { return 'rgba(255,255,255,' + a + ')'; }
+function partOfDay() { const h = new Date().getHours(); return h < 12 ? 'morning' : h < 17 ? 'afternoon' : 'evening'; }
+const SKY = { morning: 'linear-gradient(180deg,#2C5FA8 0%,#5A8FD6 45%,#F2B38C 100%)', afternoon: 'linear-gradient(180deg,#1663C7 0%,#3D93E8 50%,#9FD2FF 100%)', evening: 'linear-gradient(180deg,#0B1030 0%,#2B2470 55%,#8A4F9E 100%)' };
+const SKY_INK = { morning: '#13284D', afternoon: '#0E3A73', evening: '#2B2470' };
+const SKY_END = { morning: '#F2B38C', afternoon: '#9FD2FF', evening: '#8A4F9E' };
+const B_END = { family: '#F08A6E', career: '#7FB2F0', financial: '#6CCCA8', health: '#E08A2C' };
+function edgeColor() {
+  if (ui.view === 'home' || ui.view === 'done') return SKY_END[partOfDay()];
+  if (ui.view === 'breathe') return '#E9A98A';
+  if (ui.view === 'card' || ui.view === 'notes' || ui.view === 'question') { const p = todaysPicks(); return p ? B_END[p.b] : SKY_END[partOfDay()]; }
+  if (ui.view === 'review') return B_END[BUCKETS[ui.review].id];
+  if (ui.view === 'setup' && ui.step > 0) return B_END[BUCKETS[ui.step - 1].id];
+  return '#050505';
+}
+function glowDot(b) { return '<span class="glow" style="background:' + b.glow + ';box-shadow:0 0 14px ' + b.glow + '"></span>'; }
+function isDone(habitId, key) { return !!(S.checks[key || today()] || {})[habitId]; }
+function niceDate(key) {
+  const t = today(); if (key === t) return 'Today';
+  const y = new Date(); y.setDate(y.getDate() - 1); if (key === dayKey(y)) return 'Yesterday';
+  const d = new Date(key + 'T00:00:00'); return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+function weekDays() {
+  const d = new Date(); const dow = (d.getDay() + 6) % 7; d.setDate(d.getDate() - dow);
+  return Array.from({ length: 7 }, (_, i) => { const x = new Date(d); x.setDate(d.getDate() + i); return dayKey(x); });
+}
+function toast(msg) { ui.toast = msg; render(); clearTimeout(toast.t); toast.t = setTimeout(() => { ui.toast = ''; render(); }, 2200); }
+
+/* ---------- lines from a pasted note ---------- */
+function splitNote(text) {
+  return String(text || '').split(/\r?\n/).map(l => l.replace(/^\s*([-*•–·]|\d+[.)]|\[[ xX]?\]|☐|☑|✓|✔)\s*/, '').trim()).filter(l => l.length > 1);
+}
+function linesToItems(text, old) {
+  const pool = (old || []).slice();
+  return splitNote(text).map(t => { const i = pool.findIndex(o => o.text === t); return i > -1 ? pool.splice(i, 1)[0] : { id: uid(), text: t }; });
+}
+function isReviewed(itemId, key) { return !!(S.reviewed[key || today()] || {})[itemId]; }
+// One bucket a day, chosen at random (never the same as the day before).
+function todaysPicks() {
+  const k = today(); S.daily = S.daily || {};
+  let pick = S.daily[k]; let changed = false;
+  const valid = pick && pick.b && S.buckets[pick.b] && S.buckets[pick.b].items.length;
+  if (!valid) {
+    const withLines = BUCKETS.filter(b => S.buckets[b.id].items.length);
+    if (!withLines.length) { if (S.daily[k]) { delete S.daily[k]; save(); } return null; }
+    const prevDay = Object.keys(S.daily).filter(d => d < k && S.daily[d] && S.daily[d].b).sort().pop();
+    const prevB = prevDay ? S.daily[prevDay].b : null;
+    const pool = withLines.length > 1 ? withLines.filter(b => b.id !== prevB) : withLines;
+    pick = S.daily[k] = { b: pool[Math.floor(Math.random() * pool.length)].id }; changed = true;
+  }
+  const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 21); const ck = dayKey(cutoff);
+  Object.keys(S.daily).forEach(d => { if (d !== k && (d < ck || !S.daily[d] || !S.daily[d].b)) { delete S.daily[d]; changed = true; } });
+  if (changed) save();
+  return pick;
+}
+function dayDone(p, k) { return !!p && (!!p.done || (!!p.id && isReviewed(p.id, k))); }
+function todayDone() { return dayDone(todaysPicks(), today()); }
+function bucketReviewedToday(id) { const p = todaysPicks(); return !!p && p.b === id && todayDone(); }
+function weekStrip() {
+  const days = weekDays(), t = today(), labels = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+  return '<div class="glass" style="margin:0 16px;padding:14px 18px 16px;display:flex;flex-direction:column;gap:10px"><span class="wx-cap">This week</span><div style="display:grid;grid-template-columns:repeat(7,1fr);gap:7px">' +
+    days.map((k, i) => {
+      const p = (S.daily || {})[k], b = p && p.b ? bucketById(p.b) : null, done = b && dayDone(p, k);
+      const bg = done ? b.glow : (k <= t ? 'rgba(255,255,255,.18)' : 'rgba(255,255,255,.08)');
+      return '<span style="display:flex;flex-direction:column;align-items:center;gap:6px"><span title="' + (b ? esc(b.short) : '') + '" style="width:100%;height:38px;border-radius:11px;background:' + bg + (k === t ? ';outline:2px solid rgba(255,255,255,.9);outline-offset:2px' : '') + '"></span><span style="font-size:12px;opacity:.75">' + labels[i] + '</span></span>';
+    }).join('') + '</div></div>';
+}
+
+/* ---------- the coach ---------- */
+const COACH_DEFAULT = 'https://daily-brief-production-436c.up.railway.app';
+function coachUrl() { return String(S.coachUrl || COACH_DEFAULT).trim().replace(/\/+$/, ''); }
+function localQuestion(bId, n) { const list = PROMPTS[bId] || PROMPTS.career; return list[n % list.length]; }
+async function fetchQuestion(force) {
+  const p = todaysPicks(); if (!p) return;
+  if (p.q && !force) return;
+  if (ui.qLoading) return;
+  const b = bucketById(p.b), items = S.buckets[p.b].items;
+  S.qHistory = S.qHistory || {}; const hist = S.qHistory[p.b] = S.qHistory[p.b] || [];
+  ui.qLoading = true; render();
+  try {
+    const ctrl = new AbortController(); const timer = setTimeout(() => ctrl.abort(), 15000);
+    const r = await fetch(coachUrl() + '/api/mornings/question', { method: 'POST', headers: { 'Content-Type': 'application/json' }, signal: ctrl.signal,
+      body: JSON.stringify({ name: S.name, bucket: b.name, notes: items.map(i => i.text), recent: hist.slice(-8) }) });
+    clearTimeout(timer);
+    if (!r.ok) throw new Error('status ' + r.status);
+    const d = await r.json(); if (!d || !d.question) throw new Error('empty');
+    p.q = { text: d.question, from: (d.from || []).map(n => items[n - 1] && items[n - 1].text).filter(Boolean), src: 'coach' };
+  } catch (e) {
+    p.q = { text: localQuestion(p.b, hist.length + Math.floor(Math.random() * 7)), from: [], src: 'local' };
+  }
+  hist.push(p.q.text); if (hist.length > 20) hist.splice(0, hist.length - 20);
+  p.done = false; ui.qLoading = false; save(); render();
+}
+function showedUp(key) { return !!S.mornings[key] || Object.keys(S.reviewed[key] || {}).length > 0; }
+
+/* ---------- prompts ---------- */
+function promptFor(b) {
+  const doy = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 864e5);
+  const shift = ui.shift[b.id] || 0;
+  const open = S.notes.filter(n => n.bucket === b.id && n.type === 'question' && !n.answered).sort((x, y) => x.date.localeCompare(y.date));
+  const useOwn = open.length && (doy + shift) % 2 === 0;
+  if (useOwn) { const q = open[(Math.floor((doy + shift) / 2)) % open.length]; return { text: q.text, own: true }; }
+  const list = PROMPTS[b.id]; return { text: list[(doy + shift + BUCKETS.indexOf(b)) % list.length], own: false };
+}
+
+/* ---------- views ---------- */
+function render() {
+  const app = document.getElementById('app');
+  let html = '';
+  if (ui.view === 'setup') html = vSetup();
+  else if (ui.view === 'home') html = vHome();
+  else if (ui.view === 'card') html = vCard();
+  else if (ui.view === 'notes') html = vNotes();
+  else if (ui.view === 'question') html = vQuestion();
+  else if (ui.view === 'breathe') html = vBreathe();
+  else if (ui.view === 'done') html = vDone();
+  else if (ui.view === 'review') html = vReview();
+  else if (ui.view === 'settings') html = vSettings();
+  if (ui.sheet) html += vSheet();
+  if (ui.answerOpen && ui.view === 'question') html += vAnswer();
+  if (ui.toast) html += '<div class="toast" role="status">' + esc(ui.toast) + '</div>';
+  app.innerHTML = html;
+  const edge = edgeColor(); document.documentElement.style.backgroundColor = edge; document.body.style.backgroundColor = edge;
+  const f = app.querySelector('[data-autofocus]'); if (f && !f.value) f.focus({ preventScroll: true });
+}
+
+function vSetup() {
+  if (ui.step === 0) {
+    return '<main class="screen pad"><span class="date">Welcome</span>' +
+      '<h1 class="hello">Your mornings, in four parts.</h1>' +
+      '<p style="margin:18px 0 0;font-size:18px;line-height:1.5;color:#A3A39F">For each bucket, paste in what you already keep in your notes. Every line becomes a card you can sit with each morning.</p>' +
+      '<label class="label" for="nm" style="font-size:15px">What should we call you?</label><input id="nm" class="field" style="font-size:18px" value="' + esc(S.name) + '" autocomplete="given-name">' +
+      '<div style="margin-top:auto;padding-top:24px"><button class="btn btn-light" style="width:100%;height:62px;font-size:17px" data-act="setup-next">Start</button></div></main>';
+  }
+  const b = BUCKETS[ui.step - 1], d = S.buckets[b.id];
+  const fieldStyle = 'background:rgba(0,0,0,.18);border-color:' + soft(b, .2) + ';color:' + b.ink;
+  return '<main class="screen" style="padding:10px"><div class="card" style="background:' + b.grad + ';color:' + b.ink + ';height:auto;min-height:100%">' +
+    '<div class="bars">' + BUCKETS.map((x, i) => '<span style="display:block;height:4px;border-radius:2px;background:' + (i < ui.step ? b.ink : soft(b, .25)) + '"></span>').join('') + '</div>' +
+    '<div class="card-top"><button class="icon-btn" style="color:' + b.ink + '" aria-label="Back" data-act="setup-back">' + ICON.back + '</button><span style="font-size:15px;color:' + b.tint + '">' + ui.step + ' of 4</span></div>' +
+    '<h1 class="card-name" style="font-size:56px">' + esc(b.short) + '</h1>' +
+    '<label class="label" for="lines" style="color:' + b.tint + ';font-size:15px">Paste your ' + esc(b.short) + ' note. One card per line.</label>' +
+    '<textarea id="lines" class="field" style="' + fieldStyle + ';min-height:260px;font-size:17px" placeholder="Paste from Apple Notes" data-autofocus>' + esc(d.items.map(x => x.text).join('\n')) + '</textarea>' +
+    '<p style="margin:10px 0 0;font-size:14px;color:' + b.tint + '">Bullets and checkboxes are cleaned up for you. You can edit this anytime in Settings.</p>' +
+    '<div style="margin-top:auto;padding-top:24px"><button class="btn" style="width:100%;height:62px;font-size:17px;background:' + b.ink + ';color:' + b.bg + '" data-act="setup-next">' + (ui.step === 4 ? 'Finish' : 'Next') + '</button></div>' +
+    '</div></main>';
+}
+
+function vHome() {
+  const d = new Date(), part = partOfDay();
+  const dateStr = d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+  const isSunday = d.getDay() === 0;
+  const p = todaysPicks(), done = todayDone(), b = p ? bucketById(p.b) : null;
+  let panel, action;
+  if (!p) {
+    panel = '<div class="glass" style="margin:auto 16px 12px;padding:26px 22px;text-align:center;display:flex;flex-direction:column;gap:10px"><span style="font-size:22px;font-weight:600">Add your notes to begin</span><span style="font-size:16px;opacity:.85">Paste each bucket’s note in Settings. Each day you’ll read one bucket and get a question to think on.</span></div>';
+    action = '<button class="wx-btn" style="margin:14px 16px 0;color:' + SKY_INK[part] + '" data-act="settings">Add your notes</button>';
+  } else if (!done) {
+    panel = '<div class="glass" style="margin:auto 16px 12px;padding:26px 22px;display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center">' +
+      '<span style="font-size:15px;font-weight:600;opacity:.8">Today you’re sitting with</span>' +
+      '<span style="display:flex;align-items:center;gap:14px"><span class="glow" style="width:16px;height:16px;border-radius:8px;background:' + b.glow + ';box-shadow:0 0 20px ' + b.glow + '"></span><span style="font-size:44px;font-weight:600;letter-spacing:-.02em">' + esc(b.short) + '</span></span>' +
+      '<span style="font-size:16px;opacity:.85">Read your notes, then one question to think on</span></div>';
+    action = '<button class="wx-btn" style="margin:14px 16px 0;color:' + SKY_INK[part] + '" data-act="begin">Begin</button>';
+  } else {
+    panel = '<button class="glass" data-act="reopen" aria-label="Open today’s question again" style="margin:auto 16px 12px;padding:24px 22px;display:flex;flex-direction:column;gap:12px;text-align:left;color:#FFFFFF;font:inherit">' +
+      '<span style="display:flex;justify-content:space-between;align-items:center;width:100%"><span style="display:flex;align-items:center;gap:10px;font-size:15px;font-weight:600;opacity:.85">' + glowDot(b) + 'Today’s question · ' + esc(b.short) + '</span><span style="font-size:15px;font-weight:600">✓</span></span>' +
+      '<span style="font-size:22px;line-height:1.3">' + esc(p.q ? p.q.text : 'You sat with your ' + b.short + ' notes') + '</span></button>';
+    action = '<div style="margin:14px 16px 0;height:60px;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:500;opacity:.9">A new question tomorrow morning</div>';
+  }
+  return '<main class="screen sky" style="background:' + SKY[part] + '">' +
+    '<div style="padding:64px 24px 0;text-align:center"><span style="font-size:20px;font-weight:500;opacity:.9">' + esc(dateStr) + '</span>' +
+    '<h1 class="wx-greet">Good ' + part + '</h1></div>' +
+    panel + (p ? weekStrip() : '') + action +
+    '<div class="row-links" style="padding:6px 22px 20px;margin-top:0"><button class="link" style="color:#FFFFFF;opacity:' + (isSunday ? '1' : '.8') + ';font-size:15px" data-act="review">' + (isSunday ? 'Sunday review' : 'Weekly review') + '</button><button class="link" style="color:#FFFFFF;opacity:.8;font-size:15px" data-act="settings">Settings</button></div>' +
+    '</main>';
+}
+
+function vBreathe() {
+  return '<main class="screen sky" style="background:linear-gradient(180deg,#1F3E73 0%,#3E6BB0 50%,#E9A98A 100%)">' +
+    '<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:34px">' +
+      '<div class="breath" id="breath" aria-hidden="true"><span class="r1"></span><span class="r2"></span><span class="r3"></span></div>' +
+      '<span id="breath-text" role="status" style="font-size:36px;font-weight:200;letter-spacing:-.02em">Get comfortable</span>' +
+      '<span id="breath-sub" style="font-size:17px;opacity:.85">Three slow breaths, then your first card</span>' +
+    '</div>' +
+    '<button class="btn" style="margin:0 16px calc(24px + env(safe-area-inset-bottom));background:rgba(255,255,255,.16);color:#FFFFFF;font-weight:600" data-act="breathe-skip">Skip</button>' +
+  '</main>';
+}
+function startBreathing() {
+  const steps = [['Breathe in', 'in', 4000], ['Breathe out', 'out', 6000], ['Breathe in', 'in', 4000], ['Breathe out', 'out', 6000], ['Breathe in', 'in', 4000], ['Breathe out', 'out', 6000]];
+  let i = -1;
+  const tick = () => {
+    if (ui.view !== 'breathe') return;
+    i++;
+    if (i >= steps.length) { startCards(); return; }
+    const el = document.getElementById('breath'), tx = document.getElementById('breath-text'), sb = document.getElementById('breath-sub');
+    if (el) { el.querySelectorAll('span').forEach(s => { s.style.transitionDuration = steps[i][2] + 'ms'; }); el.className = 'breath ' + steps[i][1]; }
+    if (tx) tx.textContent = steps[i][0];
+    if (sb) sb.textContent = 'Breath ' + (Math.floor(i / 2) + 1) + ' of 3';
+    ui.breathTimer = setTimeout(tick, steps[i][2]);
+  };
+  clearTimeout(ui.breathTimer);
+  ui.breathTimer = setTimeout(tick, 900);
+}
+function startCards() { clearTimeout(ui.breathTimer); ui.editing = false; ui.view = todaysPicks() ? 'notes' : 'settings'; render(); }
+
+function bucketHeader(b, sub, left, right) {
+  return '<div style="display:flex;justify-content:space-between;align-items:flex-start;padding:16px 14px 0">' +
+    '<span style="min-width:64px;display:flex">' + left + '</span>' +
+    '<div style="text-align:center;padding-top:10px"><span style="display:block;font-size:22px;font-weight:600">' + esc(b.short) + '</span><span style="display:block;margin-top:2px;font-size:15px;opacity:.8">' + sub + '</span></div>' +
+    '<span style="min-width:64px;display:flex;justify-content:flex-end">' + right + '</span></div>';
+}
+function vNotes() {
+  const p = todaysPicks(); if (!p) return vHome();
+  const b = bucketById(p.b), items = S.buckets[p.b].items;
+  const txtBtn = (label, act, bold) => '<button class="link" style="color:#FFFFFF;font-size:17px;font-weight:' + (bold ? 700 : 500) + ';padding:10px 6px" data-act="' + act + '">' + label + '</button>';
+  if (ui.editing) {
+    const rows = ui.draft.map((it, i) =>
+      '<div class="edit-row" data-row="' + i + '" style="display:flex;align-items:center;gap:12px;min-height:60px;padding:0 12px;border-top:' + (i ? '.5px solid rgba(255,255,255,.18)' : 'none') + (ui.drag && ui.drag.i === i ? ';background:rgba(255,255,255,.12)' : '') + '">' +
+        '<button aria-label="Delete this line" data-act="edit-del" data-i="' + i + '" style="width:28px;height:28px;border:none;border-radius:14px;background:#FF453A;display:flex;align-items:center;justify-content:center;flex:0 0 auto"><span style="width:12px;height:2.5px;border-radius:2px;background:#FFFFFF"></span></button>' +
+        '<input data-edit-i="' + i + '" aria-label="Line ' + (i + 1) + '" value="' + esc(it.text) + '" placeholder="New line" style="flex:1;min-width:0;height:44px;border:none;border-bottom:1px solid rgba(255,255,255,.3);background:transparent;color:#FFFFFF;font-size:18px;outline:none">' +
+        '<span data-grip-i="' + i + '" role="button" aria-label="Drag to reorder" style="width:36px;height:44px;display:flex;align-items:center;justify-content:center;touch-action:none;cursor:grab;flex:0 0 auto"><svg aria-hidden="true" width="20" height="14" viewBox="0 0 20 14" fill="none" stroke="rgba(255,255,255,.75)" stroke-width="2" stroke-linecap="round"><path d="M2 2h16M2 7h16M2 12h16"/></svg></span>' +
+      '</div>').join('');
+    return '<main class="screen sky" style="background:' + b.grad + '">' +
+      bucketHeader(b, 'Editing notes', txtBtn('Cancel', 'edit-cancel'), txtBtn('Done', 'edit-done', true)) +
+      '<div class="glass" id="edit-list" style="margin:22px 16px 0;overflow:hidden">' + rows +
+        '<button data-act="edit-add" style="display:flex;align-items:center;gap:12px;width:100%;min-height:60px;padding:0 12px;border:none;border-top:' + (ui.draft.length ? '.5px solid rgba(255,255,255,.18)' : 'none') + ';background:none;color:#FFFFFF;font-size:18px;text-align:left"><span style="width:28px;height:28px;border-radius:14px;background:#30D158;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;line-height:1">+</span><span style="opacity:.9">Add a line</span></button>' +
+      '</div>' +
+      '<p style="margin:14px 28px 0;font-size:14px;line-height:1.5;opacity:.8;text-align:center">Tap a line to reword it · drag ☰ to reorder · red dot to delete</p>' +
+      '<div style="height:40px"></div></main>';
+  }
+  return '<main class="screen sky" style="background:' + b.grad + '">' +
+    bucketHeader(b, 'Your notes', '<button class="icon-btn" style="color:#FFFFFF" aria-label="Back to home" data-act="home">' + ICON.close + '</button>', txtBtn('Edit', 'edit-start')) +
+    '<p style="margin:22px 26px 0;font-size:17px;line-height:1.5;opacity:.9;text-align:center">Read through slowly. Notice which one pulls at you.</p>' +
+    '<div class="glass" style="margin:18px 16px 0;overflow:hidden">' + items.map((it, i) => '<div style="padding:16px 18px;border-top:' + (i ? '.5px solid rgba(255,255,255,.18)' : 'none') + ';font-size:20px;line-height:1.35">' + esc(it.text) + '</div>').join('') + '</div>' +
+    '<button class="wx-btn" style="margin:auto 16px calc(24px + env(safe-area-inset-bottom));margin-top:24px;color:' + b.bg + '" data-act="to-question">Today’s question</button>' +
+  '</main>';
+}
+function vQuestion() {
+  const p = todaysPicks(); if (!p) return vHome();
+  const b = bucketById(p.b), q = p.q, done = !!p.done || ui.qFlash;
+  const back = '<button class="icon-btn" style="color:#FFFFFF" aria-label="Back to your notes" data-act="to-notes">' + ICON.back + '</button>';
+  let body;
+  if (!q || ui.qLoading) {
+    body = '<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:0 30px;text-align:center">' +
+      '<span class="pulse" aria-hidden="true" style="width:18px;height:18px;border-radius:9px;background:#FFFFFF"></span>' +
+      '<span role="status" style="font-size:22px;font-weight:300">Thinking about your notes…</span></div>';
+  } else {
+    const from = q.from && q.from.length ? '<span style="font-size:15px;line-height:1.45;opacity:.8">Drawn from: ' + q.from.map(t => '“' + esc(t) + '”').join(' and ') + '</span>' : '';
+    const len = q.text.length, size = len > 200 ? 26 : len > 140 ? 29 : 32;
+    body = '<div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:20px;padding:20px 28px">' +
+      '<p style="margin:0;font-size:' + size + 'px;font-weight:300;line-height:1.22;letter-spacing:-.015em">' + esc(q.text) + '</p>' + from + '</div>' +
+      '<div style="display:flex;flex-direction:column;align-items:center;gap:12px">' +
+        (done ? '<button class="bigcheck" aria-label="Thought about it. Tap to undo" aria-pressed="true" data-act="q-think" style="border:none;background:rgba(255,255,255,.96);color:' + b.bg + ';box-shadow:0 0 40px rgba(255,255,255,.45)"><svg aria-hidden="true" width="44" height="44" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3.5 8.3l3 3L12.5 5"/></svg></button>'
+              : '<button class="bigcheck glass" aria-label="I thought about it" aria-pressed="false" data-act="q-think" style="border-radius:28px;color:#FFFFFF"></button>') +
+        '<span style="font-size:17px;font-weight:500;opacity:.92">' + (ui.qFlash ? 'Nice' : 'Thought about it') + '</span></div>' +
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:20px 16px 0">' +
+        '<button class="btn" style="height:50px;font-size:15px;font-weight:600;background:rgba(255,255,255,.16);color:#FFFFFF" data-act="answer-open">Write an answer</button>' +
+        '<button class="btn" style="height:50px;font-size:15px;font-weight:600;background:rgba(255,255,255,.16);color:#FFFFFF" data-act="ask-another">Ask another</button></div>' +
+      '<div style="height:calc(20px + env(safe-area-inset-bottom))"></div>';
+  }
+  return '<main class="screen sky" style="background:' + b.grad + '">' + bucketHeader(b, 'Question of the day', back, '') + body + '</main>';
+}
+function vAnswer() {
+  const p = todaysPicks(), b = bucketById(p.b), on = ui.ansAdd !== false;
+  return '<div class="scrim" data-act="answer-close"></div><section class="sheet" role="dialog" aria-label="Your answer" style="background:#FFFFFF;color:#111111">' +
+    '<button class="grab" aria-label="Close" data-act="answer-close"></button>' +
+    '<p style="margin:6px 4px 10px;font-size:15px;line-height:1.4;color:#6D6D72">' + esc(p.q ? p.q.text : '') + '</p>' +
+    '<label for="ans" style="font-size:20px;font-weight:700;padding:0 4px 8px">Your answer</label>' +
+    '<textarea id="ans" style="flex:1;min-height:110px;padding:14px;border:1px solid #D1D1D6;border-radius:16px;font-size:17px;line-height:1.5;color:#111111;resize:none" placeholder="Think it through…">' + esc(ui.ansDraft || '') + '</textarea>' +
+    '<button role="switch" aria-checked="' + on + '" data-act="answer-toggle" style="margin-top:12px;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 14px;border:none;border-radius:16px;background:#F2F2F7;color:#111111;text-align:left">' +
+      '<span style="display:flex;flex-direction:column;gap:2px"><span style="font-size:16px;font-weight:600">Add to my ' + esc(b.short) + ' notes</span><span style="font-size:13px;color:#6D6D72">Becomes a line you’ll sit with on future mornings</span></span>' +
+      '<span style="width:51px;height:31px;border-radius:16px;background:' + (on ? '#34C759' : '#E5E5EA') + ';position:relative;flex:0 0 auto"><span style="position:absolute;top:2px;left:' + (on ? 22 : 2) + 'px;width:27px;height:27px;border-radius:14px;background:#FFFFFF;box-shadow:0 2px 4px rgba(0,0,0,.2)"></span></span></button>' +
+    '<button class="btn" style="margin-top:12px;background:#111111;color:#FFFFFF" data-act="answer-save">Save</button>' +
+  '</section>';
+}
+
+function vCard() {
+  const q = ui.queue[ui.pos]; if (!q) return vDone();
+  const b = bucketById(q.b), d = S.buckets[q.b], item = d.items.find(x => x.id === q.id) || { text: '' };
+  const on = isReviewed(q.id) || ui.flash === q.id;
+  const len = item.text.length, size = len > 160 ? 26 : len > 110 ? 30 : len > 60 ? 34 : 40;
+  const many = q.n > 12;
+  const dots = many ? '<span style="font-size:14px;opacity:.8">' + (q.i + 1) + ' / ' + q.n + '</span>' : Array.from({ length: q.n }, (_, i) => '<span style="width:' + (i === q.i ? 18 : 7) + 'px;height:7px;border-radius:4px;background:' + (i === q.i ? '#FFFFFF' : 'rgba(255,255,255,.4)') + '"></span>').join('');
+  return '<main class="screen sky" data-swipe="card" style="background:' + b.grad + ';touch-action:pan-y" aria-label="' + esc(b.short) + ', today’s card">' +
+    '<div style="display:flex;justify-content:space-between;align-items:flex-start;padding:16px 14px 0">' +
+      '<button class="icon-btn" style="color:#FFFFFF" aria-label="Back to home" data-act="home">' + ICON.close + '</button>' +
+      '<div style="text-align:center;padding-top:10px"><span style="display:block;font-size:22px;font-weight:600">' + esc(b.short) + '</span><span style="display:block;margin-top:2px;font-size:15px;opacity:.8">Today’s card</span></div>' +
+      '<span style="width:40px"></span>' +
+    '</div>' +
+    '<div style="flex:1;display:flex;align-items:center;justify-content:center;padding:24px 30px"><p class="study-text" style="font-size:' + size + 'px">' + esc(item.text) + '</p></div>' +
+    '<div style="display:flex;flex-direction:column;align-items:center;gap:12px">' +
+      (on ? '<button class="bigcheck" aria-label="Thought about this. Tap to undo" aria-pressed="true" data-act="think" style="border:none;background:rgba(255,255,255,.96);color:' + b.bg + ';box-shadow:0 0 40px rgba(255,255,255,.45)"><svg aria-hidden="true" width="44" height="44" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3.5 8.3l3 3L12.5 5"/></svg></button>'
+          : '<button class="bigcheck glass" aria-label="I thought about this" aria-pressed="false" data-act="think" style="border-radius:28px;color:#FFFFFF"></button>') +
+      '<span style="font-size:17px;font-weight:500;opacity:.92">' + (ui.flash === q.id ? 'Nice' : 'Thought about it') + '</span>' +
+    '</div>' +
+    '<div style="height:22px"></div>' +
+    '<button class="handle" style="color:#FFFFFF;opacity:.75;font-size:12px;padding:6px 0 calc(16px + env(safe-area-inset-bottom))" data-act="sheet" aria-label="Jot a thought in ' + esc(b.short) + '"><i style="background:rgba(255,255,255,.5)"></i>Swipe up to jot a thought</button>' +
+  '</main>';
+}
+
+function vSheet() {
+  const b = bucketById(ui.sheet);
+  let list = S.notes.filter(n => n.bucket === b.id).sort((x, y) => y.ts - x.ts);
+  if (ui.tab === 'thoughts') list = list.filter(n => n.type === 'thought');
+  if (ui.tab === 'questions') list = list.filter(n => n.type === 'question');
+  const accent = b.id === 'health' ? '#8A5A06' : b.bg;
+  const items = list.map(n => {
+    const q = n.type === 'question';
+    let html = '<div class="note' + (q ? ' q' : '') + (n.answered ? ' answered' : '') + '" data-note="' + n.id + '" tabindex="0" role="button" aria-label="' + esc(n.text) + '. Press and hold for options">' +
+      '<span class="note-k" style="color:' + (q ? accent : '#5F6B88') + '">' + (q ? (n.answered ? 'Answered question' : 'Question') : 'Thought') + ' · ' + esc(niceDate(n.date)) + '</span><span class="note-t">' + esc(n.text) + '</span>' + (n.prompt ? '<span class="small" style="color:#5F6B88">On: ' + esc(n.prompt) + '</span>' : '') + '</div>';
+    if (ui.menu === n.id) {
+      const hasRoom = S.buckets[b.id].habits.length < 3;
+      html += '<div class="menu">' +
+        (q ? '' : '<button class="primary" style="background:' + accent + '" data-act="make-habit" data-n="' + n.id + '">' + (hasRoom ? 'Make this a ' + esc(b.short) + ' habit' : 'Habits full (3). Edit in Settings') + '</button>') +
+        (q ? '<button class="primary" style="background:' + accent + '" data-act="toggle-answered" data-n="' + n.id + '">' + (n.answered ? 'Reopen question' : 'Mark answered') + '</button>' : '') +
+        '<button data-act="flip-type" data-n="' + n.id + '">' + (q ? 'Turn into a thought' : 'Turn into a question') + '</button>' +
+        '<button data-act="del-note" data-n="' + n.id + '" style="color:#B3243C">Delete</button></div>';
+    }
+    return html;
+  }).join('');
+  const empty = ui.tab === 'questions' ? 'No questions yet. End a note with ? to save it as one.' : 'Nothing here yet. Write what you’re thinking. End with ? to save a question.';
+  return '<div class="scrim" data-act="close-sheet"></div><section class="sheet" role="dialog" aria-label="' + esc(b.name) + ' notes">' +
+    '<button class="grab" aria-label="Close notes" data-act="close-sheet"></button>' +
+    '<div style="display:flex;justify-content:space-between;align-items:baseline;padding:0 4px"><span style="font-family:var(--display);font-size:24px;font-weight:500;letter-spacing:-.02em">' + esc(b.short) + '</span><span class="small" style="color:#5F6B88">Press and hold a note for options</span></div>' +
+    '<div class="tabs" role="tablist">' + [['all', 'All'], ['thoughts', 'Thoughts'], ['questions', 'Questions']].map(t => '<button class="tab" role="tab" aria-selected="' + (ui.tab === t[0]) + '" data-act="tab" data-t="' + t[0] + '">' + t[1] + '</button>').join('') + '</div>' +
+    '<div class="notes">' + (items || '<div class="empty">' + empty + '</div>') + '</div>' +
+    (ui.answering ? '<p class="small" style="margin:8px 4px 0;color:#5F6B88">Answering: <span style="color:#0B1430">' + esc(ui.answering) + '</span></p>' : '') +
+    '<form class="composer" data-form="note"><label for="nt" style="position:absolute;left:-9999px">New thought or question</label><input id="nt" name="t" autocomplete="off" placeholder="A thought, or end with ? for a question" value="' + esc(ui.noteDraft || '') + '"><button class="send" style="background:' + accent + ';color:#FFFFFF" aria-label="Save note">' + ICON.up + '</button></form>' +
+    '</section>';
+}
+
+function vDone() {
+  const part = partOfDay(), p = todaysPicks(), b = p ? bucketById(p.b) : null;
+  return '<main class="screen sky" style="background:' + SKY[part] + '">' +
+    '<div style="padding:96px 24px 0;text-align:center"><h1 class="wx-greet" style="font-size:76px;margin:0">Nice.</h1><span style="display:block;margin-top:14px;font-size:21px;font-weight:500;opacity:.92">That’s today. Keep it with you.</span></div>' +
+    (p && p.q ? '<div class="glass" style="margin:40px 16px 12px;padding:18px 20px;display:flex;flex-direction:column;gap:10px"><span style="display:flex;align-items:center;gap:10px;font-size:15px;font-weight:600;opacity:.85">' + glowDot(b) + esc(b.short) + '</span><span style="font-size:20px;line-height:1.35">' + esc(p.q.text) + '</span></div>' : '<div style="height:40px"></div>') +
+    weekStrip() +
+    '<button class="wx-btn" style="margin:auto 16px calc(24px + env(safe-area-inset-bottom));margin-top:24px;color:' + SKY_INK[part] + '" data-act="home">Done</button>' +
+  '</main>';
+}
+
+function vReview() {
+  const b = BUCKETS[ui.review], d = S.buckets[b.id], days = weekDays();
+  const since = days[0];
+  const wrote = S.notes.filter(n => n.bucket === b.id && n.type === 'thought' && n.date >= since).sort((x, y) => y.ts - x.ts).slice(0, 3);
+  const open = S.notes.filter(n => n.bucket === b.id && n.type === 'question' && !n.answered).slice(0, 2);
+  const line = soft(b, .18), off = soft(b, .14);
+  const dec = S.decisions[since] || {};
+  return '<main class="screen" style="padding:12px"><article class="card" style="background:' + b.grad + ';color:' + b.ink + ';height:auto;min-height:100%;gap:16px">' +
+    '<div class="card-top" style="margin-top:0"><button class="icon-btn" style="color:' + b.ink + ';margin-left:-10px" aria-label="Close review" data-act="home">' + ICON.close + '</button><span class="small" style="color:' + b.tint + '">Weekly review · ' + (ui.review + 1) + ' of 4</span></div>' +
+    '<h1 class="card-name" style="margin:0;font-size:52px">' + esc(b.short) + '</h1>' +
+    '<section><p class="small" style="color:' + b.tint + ';margin:0 0 4px">What you wrote this week</p>' +
+      (wrote.length ? wrote.map(n => '<p style="margin:0;padding:10px 0;border-top:1px solid ' + line + ';font-size:14px;line-height:1.45">' + esc(n.text) + '</p>').join('') : '<p style="margin:0;padding:10px 0;border-top:1px solid ' + line + ';font-size:14px;opacity:.7">No thoughts this week.</p>') +
+    '</section>' +
+    open.map(q => '<section style="padding:16px;border-radius:20px;background:' + soft(b, .1) + ';display:flex;flex-direction:column;gap:12px"><span style="font-size:16px;line-height:1.4">' + esc(q.text) + '</span>' +
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="btn" style="height:44px;font-size:13px;background:transparent;border:1px solid ' + soft(b, .35) + ';color:' + b.ink + ';font-weight:600" data-act="still" data-n="' + q.id + '">Still thinking</button><button class="btn" style="height:44px;font-size:13px;background:' + b.ink + ';color:' + b.bg + '" data-act="toggle-answered" data-n="' + q.id + '">I’ve answered it</button></div></section>').join('') +
+    '<section style="display:flex;flex-direction:column;gap:14px"><p class="small" style="color:' + b.tint + ';margin:0">Your week</p>' +
+      '<div class="week-head" aria-hidden="true" style="color:' + soft(b, .7) + '"><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span></div>' +
+      (d.habits.length ? d.habits.map(h => {
+        const keep = dec[h.id] !== 'change';
+        return '<div style="display:flex;flex-direction:column;gap:8px"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><span style="font-size:15px">' + esc(h.name) + '</span>' +
+          '<span class="seg" role="radiogroup" aria-label="' + esc(h.name) + '" style="background:' + soft(b, .1) + '"><button role="radio" aria-checked="' + keep + '" data-act="keep" data-h="' + h.id + '" style="background:' + (keep ? b.ink : 'transparent') + ';color:' + (keep ? b.bg : b.ink) + '">Keep</button><button role="radio" aria-checked="' + !keep + '" data-act="change" data-h="' + h.id + '" style="background:' + (!keep ? b.ink : 'transparent') + ';color:' + (!keep ? b.bg : b.ink) + '">Change</button></span></div>' +
+          '<div class="week" aria-label="' + esc(h.name) + ' this week">' + days.map(k => '<span title="' + k + '" style="background:' + (isDone(h.id, k) ? b.ink : off) + '"></span>').join('') + '</div></div>';
+      }).join('') : '<p style="margin:0;font-size:14px;opacity:.7">No habits set for this bucket.</p>') +
+    '</section>' +
+    '<div style="margin-top:auto;display:grid;grid-template-columns:' + (ui.review ? '1fr 2fr' : '1fr') + ';gap:8px">' +
+      (ui.review ? '<button class="btn" style="background:transparent;border:1px solid ' + soft(b, .35) + ';color:' + b.ink + ';font-weight:600" data-act="review-back">Back</button>' : '') +
+      '<button class="btn" style="background:' + b.ink + ';color:' + b.bg + '" data-act="review-next">' + (ui.review === 3 ? 'Finish review' : 'Next: ' + esc(BUCKETS[ui.review + 1].short)) + '</button></div>' +
+    '</article></main>';
+}
+
+function vSettings() {
+  return '<main class="screen pad"><div style="display:flex;align-items:center;gap:6px"><button class="icon-btn" style="margin-left:-10px;color:#F3F3F0" aria-label="Back" data-act="home">' + ICON.back + '</button><h1 style="margin:0;font-family:var(--display);font-weight:500;font-size:30px;letter-spacing:-.03em">Settings</h1></div>' +
+    '<label class="label" for="s-name">Your name</label><input id="s-name" class="field" value="' + esc(S.name) + '">' +
+    BUCKETS.map(b => {
+      const d = S.buckets[b.id];
+      return '<section class="set-bucket" style="background:' + b.grad + ';color:' + b.ink + '"><h2 style="margin:0 0 10px;font-family:var(--display);font-weight:600;font-size:24px">' + esc(b.name) + '</h2>' +
+        '<label class="small" for="a-' + b.id + '" style="display:block;margin-bottom:6px;color:' + b.tint + '">Your note: one card per line</label><textarea id="a-' + b.id + '" class="field" style="min-height:180px;font-size:16px">' + esc(d.items.map(x => x.text).join('\n')) + '</textarea>' +
+        '<label class="small" for="h-' + b.id + '-0" style="display:block;margin:12px 0 6px;color:' + b.tint + '">Habits to track in the weekly review (optional)</label>' +
+        [0, 1, 2].map(i => '<input id="h-' + b.id + '-' + i + '" class="field" style="margin-top:' + (i ? 8 : 0) + 'px" placeholder="' + (i ? 'Optional' : 'A habit') + '" value="' + esc(d.habits[i] ? d.habits[i].name : '') + '">').join('') +
+        '</section>';
+    }).join('') +
+    '<label class="label" for="s-coach">Coach server</label><input id="s-coach" class="field" style="font-size:14px" value="' + esc(coachUrl()) + '" autocomplete="off" autocapitalize="off" spellcheck="false">' +
+    '<button class="btn btn-light" style="width:100%;margin-top:18px" data-act="save-settings">Save changes</button>' +
+    '<button class="btn btn-ghost" role="switch" aria-checked="' + (S.breathe !== false) + '" style="width:100%;margin-top:12px;display:flex;justify-content:space-between;align-items:center;padding:0 20px" data-act="toggle-breathe"><span>Start with three breaths</span><span style="width:50px;height:30px;border-radius:15px;background:' + (S.breathe !== false ? '#34C759' : '#3A3A3C') + ';position:relative;display:inline-block"><span style="position:absolute;top:2px;left:' + (S.breathe !== false ? 22 : 2) + 'px;width:26px;height:26px;border-radius:13px;background:#FFFFFF"></span></span></button>' +
+    '<p class="label" style="margin-top:30px">Your notes live only on this phone. Export a backup now and then.</p>' +
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="btn btn-ghost" data-act="export">Export backup</button><label class="btn btn-ghost" style="display:flex;align-items:center;justify-content:center;cursor:pointer">Import backup<input type="file" accept="application/json,.json" data-act="import" style="display:none"></label></div>' +
+    '<button class="link" style="margin-top:20px;color:#E5707E" data-act="reset">Erase everything</button>' +
+    '</main>';
+}
+
+/* ---------- actions ---------- */
+function readSetupStep() {
+  if (ui.step === 0) { const v = document.getElementById('nm').value.trim(); S.name = v || 'Mitch'; return; }
+  const b = BUCKETS[ui.step - 1], d = S.buckets[b.id];
+  d.items = linesToItems(document.getElementById('lines').value, d.items);
+}
+function startSession() { if (!ui.sessionStart) ui.sessionStart = Date.now(); }
+function finishMorning() { S.mornings[today()] = { ts: Date.now() }; save(); ui.view = 'done'; }
+
+function act(name, el) {
+  switch (name) {
+    case 'setup-next': readSetupStep(); save(); if (ui.step === 4) { S.setupDone = true; save(); ui.view = 'home'; } else ui.step++; break;
+    case 'setup-back': readSetupStep(); ui.step = Math.max(0, ui.step - 1); break;
+    case 'begin': startSession(); if (S.breathe === false) { startCards(); return; } ui.view = 'breathe'; render(); startBreathing(); return;
+    case 'breathe-skip': startCards(); return;
+    case 'toggle-breathe': S.breathe = S.breathe === false; save(); break;
+    case 'reopen': ui.view = 'question'; render(); fetchQuestion(false); return;
+    case 'to-question': ui.view = 'question'; render(); fetchQuestion(false); return;
+    case 'to-notes': ui.view = 'notes'; ui.answerOpen = false; break;
+    case 'edit-start': ui.editing = true; ui.draft = S.buckets[todaysPicks().b].items.map(i => ({ id: i.id, text: i.text })); break;
+    case 'edit-cancel': ui.editing = false; ui.draft = null; break;
+    case 'edit-done': { const d = S.buckets[todaysPicks().b]; d.items = ui.draft.map(i => ({ id: i.id, text: i.text.trim() })).filter(i => i.text); ui.editing = false; ui.draft = null; save(); if (!d.items.length) { ui.view = 'home'; } break; }
+    case 'edit-del': ui.draft.splice(+el.dataset.i, 1); break;
+    case 'edit-add': { ui.draft.push({ id: uid(), text: '' }); render(); const ins = document.querySelectorAll('[data-edit-i]'); if (ins.length) ins[ins.length - 1].focus(); return; }
+    case 'q-think': {
+      const p = todaysPicks(); if (!p || !p.q) return;
+      if (p.done) { p.done = false; save(); break; }
+      p.done = true; S.mornings[today()] = { ts: Date.now() }; save(); ui.qFlash = true; render();
+      clearTimeout(act.t); act.t = setTimeout(() => { ui.qFlash = false; ui.view = 'done'; render(); }, 500); return;
+    }
+    case 'ask-another': fetchQuestion(true); return;
+    case 'answer-open': ui.answerOpen = true; ui.ansAdd = true; ui.ansDraft = ''; render(); { const t = document.getElementById('ans'); if (t) t.focus({ preventScroll: true }); } return;
+    case 'answer-close': ui.answerOpen = false; break;
+    case 'answer-toggle': ui.ansAdd = ui.ansAdd === false; break;
+    case 'answer-save': {
+      const p = todaysPicks(), text = (ui.ansDraft || '').trim();
+      if (!text) { toast('Write something first'); return; }
+      S.notes.push({ id: uid(), bucket: p.b, type: 'thought', text, date: today(), ts: Date.now(), prompt: p.q ? p.q.text : undefined });
+      if (ui.ansAdd !== false) S.buckets[p.b].items.push({ id: uid(), text });
+      save(); ui.answerOpen = false; ui.ansDraft = '';
+      toast(ui.ansAdd !== false ? 'Saved and added to your ' + bucketById(p.b).short + ' notes' : 'Saved'); return;
+    }
+    case 'think': {
+      const q = ui.queue[ui.pos]; if (!q) break; const k = today();
+      S.reviewed[k] = S.reviewed[k] || {};
+      if (S.reviewed[k][q.id]) { delete S.reviewed[k][q.id]; save(); break; }
+      S.reviewed[k][q.id] = true; S.lastThought = S.lastThought || {}; S.lastThought[q.id] = k; save(); ui.flash = q.id; render();
+      clearTimeout(act.t); act.t = setTimeout(() => { ui.flash = null; finishMorning(); render(); }, 450); return;
+    }
+    case 'skip': case 'next': if (ui.pos < ui.queue.length - 1) ui.pos++; else finishMorning(); break;
+    case 'prev': if (ui.pos > 0) ui.pos--; break;
+    case 'home': clearTimeout(ui.breathTimer); ui.editing = false; ui.answerOpen = false; ui.view = 'home'; ui.sheet = null; ui.sessionStart = null; break;
+    case 'check': { const k = today(); S.checks[k] = S.checks[k] || {}; const h = el.dataset.h; if (S.checks[k][h]) delete S.checks[k][h]; else S.checks[k][h] = true; save(); break; }
+    case 'sheet': ui.sheet = (todaysPicks() || {}).b || 'family'; ui.tab = 'all'; ui.menu = null; ui.answering = null; ui.noteDraft = ''; break;
+    case 'close-sheet': ui.sheet = null; ui.menu = null; ui.answering = null; break;
+    case 'tab': ui.tab = el.dataset.t; ui.menu = null; break;
+    case 'make-habit': {
+      const n = S.notes.find(x => x.id === el.dataset.n), d = S.buckets[n.bucket];
+      if (d.habits.length >= 3) { toast('This bucket already has three habits'); return; }
+      const name = n.text.length > 60 ? n.text.slice(0, 57) + '…' : n.text;
+      d.habits.push({ id: uid(), name }); ui.menu = null; save(); toast('Added as a ' + bucketById(n.bucket).short + ' habit'); return;
+    }
+    case 'toggle-answered': { const n = S.notes.find(x => x.id === el.dataset.n); n.answered = !n.answered; ui.menu = null; save(); if (ui.view === 'review') toast(n.answered ? 'Marked answered' : 'Reopened'); break; }
+    case 'still': toast('Still open. It’ll come back as a prompt.'); return;
+    case 'flip-type': { const n = S.notes.find(x => x.id === el.dataset.n); n.type = n.type === 'question' ? 'thought' : 'question'; n.answered = false; ui.menu = null; save(); break; }
+    case 'del-note': S.notes = S.notes.filter(x => x.id !== el.dataset.n); ui.menu = null; save(); break;
+    case 'review': ui.review = 0; ui.view = 'review'; break;
+    case 'review-next': if (ui.review < 3) ui.review++; else { ui.view = 'home'; toast('Review done. See you next week.'); return; } break;
+    case 'review-back': ui.review = Math.max(0, ui.review - 1); break;
+    case 'keep': case 'change': {
+      const wk = weekDays()[0]; S.decisions[wk] = S.decisions[wk] || {}; S.decisions[wk][el.dataset.h] = name; save();
+      if (name === 'change') {
+        const b = BUCKETS[ui.review], d = S.buckets[b.id], h = d.habits.find(x => x.id === el.dataset.h);
+        const v = prompt('Change this habit to… (leave empty to remove it)', h.name);
+        if (v !== null) { const t = v.trim(); if (t) h.name = t; else d.habits = d.habits.filter(x => x.id !== h.id); save(); }
+      }
+      break;
+    }
+    case 'settings': ui.view = 'settings'; ui.sheet = null; break;
+    case 'save-settings': {
+      S.name = document.getElementById('s-name').value.trim() || 'Mitch';
+      S.coachUrl = document.getElementById('s-coach').value.trim() || COACH_DEFAULT;
+      BUCKETS.forEach(b => {
+        const d = S.buckets[b.id];
+        d.items = linesToItems(document.getElementById('a-' + b.id).value, d.items);
+        const names = [0, 1, 2].map(i => document.getElementById('h-' + b.id + '-' + i).value.trim()).filter(Boolean);
+        d.habits = names.map((n, i) => (d.habits[i] && d.habits[i].name === n) ? d.habits[i] : { id: uid(), name: n });
+      });
+      save(); toast('Saved'); return;
+    }
+    case 'export': exportData(); return;
+    case 'reset': if (confirm('Erase all your aspirations, habits and notes from this phone? This can’t be undone. Export a backup first if you want one.')) { S = blank(); save(); ui.view = 'setup'; ui.step = 0; } break;
+  }
+  render();
+}
+
+function addNote(text) {
+  text = text.trim(); if (!text) return;
+  const type = /\?\s*$/.test(text) ? 'question' : 'thought';
+  S.notes.push({ id: uid(), bucket: ui.sheet, type, text, date: today(), ts: Date.now(), prompt: ui.answering || undefined });
+  ui.noteDraft = ''; ui.answering = null; save(); render();
+  const i = document.getElementById('nt'); if (i) i.focus({ preventScroll: true });
+}
+
+async function exportData() {
+  const data = JSON.stringify(S, null, 2);
+  const name = 'mornings-backup-' + today() + '.json';
+  try {
+    const file = new File([data], name, { type: 'application/json' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: 'Mornings backup' }); return; }
+  } catch (e) { if (e && e.name === 'AbortError') return; }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([data], { type: 'application/json' })); a.download = name; document.body.appendChild(a); a.click(); a.remove();
+  toast('Backup downloaded');
+}
+function importData(file) {
+  const r = new FileReader();
+  r.onload = () => {
+    try {
+      const s = JSON.parse(r.result);
+      if (!s || !s.buckets || !Array.isArray(s.notes)) throw new Error('bad');
+      if (!confirm('Replace what’s on this phone with this backup?')) return;
+      S = Object.assign(blank(), s); save(); ui.view = 'home'; render(); toast('Backup restored');
+    } catch (e) { toast('That file isn’t a Mornings backup'); }
+  };
+  r.readAsText(file);
+}
+
+/* ---------- events ---------- */
+const app = document.getElementById('app');
+app.addEventListener('click', (e) => {
+  const el = e.target.closest('[data-act]');
+  if (!el || el.tagName === 'INPUT') return;
+  if (el.closest('.note') && !el.dataset.act) return;
+  act(el.dataset.act, el);
+});
+app.addEventListener('change', (e) => { if (e.target.matches('input[data-act="import"]') && e.target.files[0]) importData(e.target.files[0]); });
+app.addEventListener('submit', (e) => {
+  if (e.target.matches('[data-form="note"]')) { e.preventDefault(); addNote(e.target.elements.t.value); }
+});
+app.addEventListener('input', (e) => {
+  if (e.target.id === 'nt') ui.noteDraft = e.target.value;
+  if (e.target.id === 'ans') ui.ansDraft = e.target.value;
+  if (e.target.dataset && e.target.dataset.editI != null && ui.draft) ui.draft[+e.target.dataset.editI].text = e.target.value;
+});
+// drag to reorder while editing notes
+app.addEventListener('pointerdown', (e) => {
+  const g = e.target.closest && e.target.closest('[data-grip-i]'); if (!g || !ui.editing) return;
+  e.preventDefault(); ui.drag = { i: +g.dataset.gripI }; render();
+});
+app.addEventListener('pointermove', (e) => {
+  if (!ui.drag || !ui.editing) return;
+  const rows = [...document.querySelectorAll('.edit-row')];
+  let to = rows.findIndex(r => { const rc = r.getBoundingClientRect(); return e.clientY < rc.top + rc.height / 2; });
+  if (to === -1) to = rows.length - 1; else if (to > ui.drag.i) to -= 1;
+  if (to !== ui.drag.i && to >= 0) { const [m] = ui.draft.splice(ui.drag.i, 1); ui.draft.splice(to, 0, m); ui.drag.i = to; render(); }
+});
+['pointerup', 'pointercancel'].forEach(t => app.addEventListener(t, () => { if (ui.drag) { ui.drag = null; render(); } }));
+
+// press and hold a note for options; Enter/Space does the same for keyboard users
+let holdTimer = null, holdStart = null;
+app.addEventListener('pointerdown', (e) => {
+  const n = e.target.closest('.note'); if (!n) return;
+  holdStart = { x: e.clientX, y: e.clientY };
+  holdTimer = setTimeout(() => { ui.menu = ui.menu === n.dataset.note ? null : n.dataset.note; if (navigator.vibrate) navigator.vibrate(10); render(); }, 420);
+});
+['pointerup', 'pointercancel', 'pointerleave'].forEach(t => app.addEventListener(t, () => { clearTimeout(holdTimer); }));
+app.addEventListener('pointermove', (e) => { if (holdStart && (Math.abs(e.clientX - holdStart.x) > 8 || Math.abs(e.clientY - holdStart.y) > 8)) clearTimeout(holdTimer); });
+app.addEventListener('keydown', (e) => {
+  const n = e.target.closest && e.target.closest('.note');
+  if (n && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); ui.menu = ui.menu === n.dataset.note ? null : n.dataset.note; render(); }
+  if (e.key === 'Escape' && ui.sheet) { ui.sheet = null; ui.menu = null; render(); }
+  if (ui.view === 'card' && !ui.sheet && !/INPUT|TEXTAREA/.test(document.activeElement.tagName)) {
+    if (e.key === 'ArrowUp') act('sheet');
+  }
+});
+
+// swipe between cards, swipe up for notes
+let sw = null;
+app.addEventListener('touchstart', (e) => {
+  if (ui.view !== 'card' || ui.sheet) return;
+  if (e.target.closest('button,input,textarea')) { sw = null; return; }
+  const t = e.touches[0]; sw = { x: t.clientX, y: t.clientY, at: Date.now() };
+}, { passive: true });
+app.addEventListener('touchend', (e) => {
+  if (!sw) return;
+  const t = e.changedTouches[0], dx = t.clientX - sw.x, dy = t.clientY - sw.y; sw = null;
+  if (dy < -70 && Math.abs(dy) > Math.abs(dx)) act('sheet');
+}, { passive: true });
+
+if (window.visualViewport) {
+  const vv = window.visualViewport;
+  const fit = () => {
+    const kb = Math.max(0, Math.round(window.innerHeight - vv.height - vv.offsetTop));
+    document.documentElement.style.setProperty('--kb', kb + 'px');
+    if (kb > 0 && (window.scrollY || vv.offsetTop)) window.scrollTo(0, 0);
+  };
+  vv.addEventListener('resize', fit); vv.addEventListener('scroll', fit);
+}
+document.addEventListener('focusin', () => { setTimeout(() => window.scrollTo(0, 0), 50); });
+render();
+if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
+</script>
+</body>
+</html>
